@@ -265,6 +265,7 @@
         <div class="field">
           <label class="grey-text">Jenis Kelamin</label>
           <select class="ui search dropdown" v-model="create_siswa_jenis_kelamin">
+            <option value="" >Pilih Jenis Kelamin</option>
             <option value="M" >Laki-laki</option>
             <option value="F" >Perempuan</option>
           </select> 
