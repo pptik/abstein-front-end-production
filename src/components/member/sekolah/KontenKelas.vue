@@ -513,6 +513,7 @@
         }).then(function (data,err) {
           if(data.body.success == true){ 
             alert(data.body.data.message)
+            window.location.href = "/kelas";
           }else{
            alert(err)
           }        
