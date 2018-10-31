@@ -13,7 +13,10 @@
             <span class="white-text">Pengolahan Data Absensi</span>
           </router-link>                    
       </div>
-      <div class="right menu">         
+      <div class="right menu">    
+          <a class="item" href="#" v-on:click="Option()">        
+            <span class="blue-text">Option</span>
+          </a>          
           <a class="item" href="#" v-on:click="keluar()">        
             <span class="grey-text">Keluar</span>
           </a>                                     
@@ -92,9 +95,12 @@
           }
         },
         methods: {
-          keluar:function () {
+               keluar:function () {
             this.$session.destroy()
             this.$router.push('/')
+          },
+           Option:function () {
+            this.$router.push('/option')
           }
         },
         components: {

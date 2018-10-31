@@ -5,7 +5,7 @@
       <a class="active item" data-tab="second"><span class="grey-text">Tabulasi</span></a>      
       <a class="item" data-tab="thrid"><span class="grey-text">Rekapitulasi</span></a>      
       <a class="item" data-tab="fourth"><span class="grey-text">Tambah Kelas &amp; Siswa</span></a>
-      <!-- <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a> -->
+      <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a>
     </div>
     <div class="ui bottom attached tab segment" data-tab="first">
       <div class="grey-text" style="font-size:xx-large;font-weight:300;margin-top:0.3em;">      
@@ -265,7 +265,6 @@
         <div class="field">
           <label class="grey-text">Jenis Kelamin</label>
           <select class="ui search dropdown" v-model="create_siswa_jenis_kelamin">
-            <option value="" >Pilih Jenis Kelamin</option>
             <option value="M" >Laki-laki</option>
             <option value="F" >Perempuan</option>
           </select> 
@@ -342,9 +341,9 @@
         </div>
       </form> -->
     </div> 
-    <!-- <div class="ui bottom attached tab segment grey-text" data-tab="fifth">
-      Pilih kelas lalu form upload nya dari Alvin
-    </div> -->
+    <div class="ui bottom attached tab segment grey-text" data-tab="fifth">
+    Cooming Soon :D
+    </div>
     <modal name="form-update-absensi">            
         <p style="font-size:150%;padding:1em 1em 0em 1em">
           Form perbaharui status absensi                    
@@ -505,6 +504,14 @@
         })
       },
       createKelas: function(){
+         Swal({
+    //title: 'Processing...',
+    html: 'Harap tunggu Data Sedang di proses...',
+    allowOutsideClick : false,
+    onOpen: () => {
+      Swal.showLoading()
+    },
+  })
         this.$http.post(global_json.general_url+'/kelas/tambah',{
           tingkat:this.create_class_tingkat,
           jurusan:this.create_class_jurusan,
@@ -512,10 +519,9 @@
           sekolah:this.$session.get('id_sekolah')
         }).then(function (data,err) {
           if(data.body.success == true){ 
-            alert(data.body.data.message)
-            window.location.href = "/kelas";
+            Swal(data.body.data.message)
           }else{
-           alert(err)
+           Swal(err)
           }        
         })
       },

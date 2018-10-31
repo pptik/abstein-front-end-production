@@ -14,7 +14,7 @@
         },*/
         data(){
           return{
-            copyright: "© 2018 Vidyanusa Institut Teknologi Bandung"
+            copyright: "© 2018 All Right Reserved"
           }
         }
     }

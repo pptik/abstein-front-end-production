@@ -4,29 +4,30 @@
       <h2 class="primary-color">Form Registrasi Pengguna</h2><br/>
       <form class="ui form">
         <div class="field">
-          <div>Username</div>
-          <input type="text" name="username" placeholder="Buat username Anda" v-model="username"/>
+          <div>Nama Sekolah</div>
+          <input type="text" name="nama_sekolah" placeholder="Buat username Anda" v-model="nama_sekolah"/>
         </div>
         <div class="field">
-          <div>Sandi</div>
-          <input type="password" name="sandi" placeholder="Sandi Anda untuk login" v-model="sandi"/>
+          <div>Username</div>
+          <input type="text" name="username" placeholder="Sandi Anda untuk login" v-model="username"/>
         </div>                
         <div class="field">
-          <div>Nama Lengkap</div>
-          <input type="text" name="nama_lengkap" placeholder="Tulis Nama Lengkap Anda" v-model="nama_lengkap"/>
+          <div>Email</div>
+          <input type="email" name="email" placeholder="Tulis Nama Lengkap Anda" v-model="email"/>
+        </div>
+         <div class="field">
+          <div>Password</div>
+          <input type="password" name="password" placeholder="Tulis Nama Lengkap Anda" v-model="password"/>
         </div>
         <button v-on:click.prevent="daftarSebagaiMahasiswa" style="color: white; background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);" class="ui button">Kirim</button>
       </form>
     </div>
-    <div class="eight wide column grey-text" align="center">
+   <div  class="eight wide column" align="center">      
       <div class="ui grid stackable">
-        <div class="eight wide column">
-          <img src="/src/assets/images/itb.png" class="ui image medium"/>          
-        </div>
-        <div class="eight wide column">
-          <img src="/src/assets/images/upi.png" class="ui image medium"/>          
-        </div>
-      </div>   
+        <div class="sixteen wide column" style="margin-top:2em;">
+          <img src="/src/assets/images/Tutwurihandayani.png" style="heigh:350; width:350;" class="ui image medium"/>          
+        </div>        
+      </div>        
     </div>
   </div>
 
@@ -34,22 +35,14 @@
 
 <script>
   import global_json from '../../assets/js/globalVariable.json';
-
+ import Swal from 'sweetalert2'
   export default {
     name: "konten",
     data(){
       return{
-        email: '',
+        nama_sekolah: '',
         username: '',
-        sandi: '',
-        select_universitas: '',        
-        select_jenjang: '',
-        select_prodi: '',
-        nim: '',
-        nama_lengkap: '',
-        daftar_universitas: [],
-        daftar_jenjang: [],
-        daftar_prodi: []
+        email: ''
       }
     },
     created(){
@@ -57,29 +50,30 @@
     },
     methods: {
       daftarSebagaiMahasiswa:function () {
-        this.$http.post(global_json.general_url+'/daftar/proses/mahasiswa',{
-          email: this.email,
+        Swal({
+    //title: 'Processing...',
+    html: 'Harap tunggu Data Sedang di proses...',
+    allowOutsideClick : false,
+    onOpen: () => {
+      Swal.showLoading()
+    },
+  })
+        this.$http.post(global_json.general_url+'/absen/sekolah/create',{
+          nama_sekolah: this.nama_sekolah,
           username: this.username,
-          sandi: this.sandi,
-          institusi: this.select_universitas,
-          jenjang: this.select_jenjang,
-          prodi: this.select_prodi,
-          nim: this.nim
+          email: this.email,
+          password: this.password
         }).then(function (data) {
+          //console.log(data);
           if(data.body.success == true){
-            this.$session.set('access_token',data.body.data.data.access_token)
-            this.$session.set('user_id',data.body.data.data.user_id)
-            this.$session.set('user_role',data.body.data.data.user_role)
-            this.$session.set('username',data.body.data.data.username)
-
-            this.$router.push({path:'/dashboard'})
+           Swal({title:data.body.data.message});
           }else if(data.body.success == false){
             var pesan = '';
             //console.log('Kembalian: '+data.body.data.length)
             for(let a=0;a<data.body.data.length;a++){
               pesan += JSON.stringify(data.body.data[a].msg)+', ';
             }
-            alert(pesan);
+            Swal("Terjadi Kesalahan,SIlahkan Hub Admin");
           }
         });
       },

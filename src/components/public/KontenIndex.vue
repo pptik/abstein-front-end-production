@@ -22,7 +22,7 @@
     <div  class="eight wide column" align="center">      
       <div class="ui grid stackable">
         <div class="sixteen wide column" style="margin-top:2em;">
-          <img src="/src/assets/images/product-carousel-2.png" class="ui image large"/>          
+          <img src="/src/assets/images/Tutwurihandayani.png" style="heigh:350; width:350;" class="ui image medium"/>          
         </div>        
       </div>        
     </div>
@@ -72,7 +72,8 @@
             vue.$session.set('id_sekolah',data.body.data.id_sekolah)
             vue.$session.set('foto_profil',data.body.data.foto_profil)
             vue.$session.set('email',vue.email)
-            
+            vue.$session.set('password',vue.sandi)
+            console.log(data.body.data);
             //vue.$router.push({path:'/dashboard'})
             
             if(data.body.data.peran === 2 || data.body.data.peran === 3){

@@ -1,7 +1,7 @@
 <template>
   <section class="ui grid stackable">
     <div class="eight wide column grey-text" align="center">
-      <img src="/src/assets/images/carousel-2.png" class="ui image medium"/>
+      <img src="/src/assets/images/SmkPasundan.png" class="ui image medium"/>
     </div>
     <div class="eight wide column grey-text">
       <h2 class="primary-color">Masuk</h2><br/>

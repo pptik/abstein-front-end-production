@@ -14,6 +14,9 @@
           </router-link>                    
       </div>
       <div class="right menu">         
+          <a class="item" href="#" v-on:click="Option()">        
+            <span class="grey-text">Option</span>
+          </a>  
           <a class="item" href="#" v-on:click="keluar()">        
             <span class="grey-text">Keluar</span>
           </a>                                     
@@ -111,6 +114,9 @@
           keluar:function () {
             this.$session.destroy()
             this.$router.push('/')
+          },
+           Option:function () {
+            this.$router.push('/option')
           }
         },
         components: {
