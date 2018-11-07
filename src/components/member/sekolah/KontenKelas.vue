@@ -698,8 +698,28 @@
                 for(let counter=0;counter<results.length;counter++){
                   console.log("XXI:"+moment(results[counter].tanggal_string).format('DD'))
                   vue.chartLabel.push(moment(results[counter].tanggal_string).format('DD'))
-                  vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
-                  vue.waktuPulang.push(vue.get_only_time(results[counter].pulang_string).getTime()/1000)
+                 
+                  if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].pulang_string).getTime()/1000){
+                      vue.waktuPulang.push(vue.get_only_time(results[counter].pulang_string).getTime()/1000)
+                 
+                    
+                  }else{
+                     vue.waktuPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)
+                    
+                  }
+
+                  if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].datang_string).getTime()/1000){
+                vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
+
+                  }else{
+                   vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
+
+                    }
+
+                  console.log("DATA PULANG: "+vue.get_only_time(results[counter].pulang_string).getTime()/1000)
+                  console.log("DATA DATANG: "+vue.get_only_time(results[counter].datang_string).getTime()/1000)
+                  console.log("DATA DATANG TEPAT: "+vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000)
+                  console.log("DATA PULANG TEPAT: "+vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)                  
                   vue.tepatDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   vue.tepatPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000);
                 }
