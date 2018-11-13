@@ -36,7 +36,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_datang != 0" bgcolor="green" style="text-align:center">                
-                <a class="ui green large label">{{harian.waktu_datang}}</a>
+                <a class="ui green large label">{{harian.waktu_datang}} {{lokalisasi}}</a>
               </span>
               <br/>
               <br/>
@@ -45,7 +45,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_pulang != 0" bgcolor="green" style="text-align:center">
-                <a class="ui green large label">{{harian.waktu_pulang}}</a>                
+                <a class="ui green large label">{{harian.waktu_pulang}}  {{lokalisasi}}</a>                
               </span>
             </td>                           
             <td v-if="harian.waktu_datang == 0 && harian.waktu_pulang == 0 " bgcolor="red" style="text-align:center"> 
@@ -61,6 +61,9 @@
               <span class="white-text">Sakit</span>
             </td>
             <td v-if="harian.waktu_datang != 0 && harian.waktu_pulang == 0" bgcolor="grey" style="text-align:center">                                                        
+              <span class="white-text">Tidak Lengkap</span>  
+            </td>
+            <td v-if="harian.waktu_datang == 0 && harian.waktu_pulang != 0" bgcolor="grey" style="text-align:center">                                                        
               <span class="white-text">Tidak Lengkap</span>  
             </td>
             <td style="text-align:center" v-if="$session.get('user_role') ===2"> 
@@ -135,8 +138,10 @@
 
   export default {
     name: "konten",
+    
     data(){
       return{
+        lokalisasi:"",
         chartLabel: [],
         //chartLabelY: ["07.00","08.00"]  
         waktuDatang: [],
@@ -165,9 +170,11 @@
     created() {
       this.check_session();
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
+      this.get_lokalisasi();
       this.get_all_siswa();
       moment.locale('id')      
       this.this_full_date = moment(Date.now()).format('LL');
+  
       
     },
     mounted: function () {
@@ -224,6 +231,14 @@
           alert("Session anda sudah habis, silahkan login kembali untuk melanjutkan.")
           this.$router.push('/')
         }
+      },
+       get_lokalisasi(){
+           this.$http.post('http://167.205.7.230:3001/absen/sekolah/absen/lokalisasisekolah',{
+               _id:this.$session.get('id_sekolah')
+           }).then(function (data,err) {
+         
+             this.lokalisasi=data.body.data.data_result.kode;
+           })
       },
       get_absen(user){
         console.log("sekolah: "+this.$session.get('id_sekolah'))
@@ -292,23 +307,74 @@
         console.log("sekolah id:"+vue.$session.get('id_sekolah'))
         console.log("date_time:"+new Date().toISOString())
         vue.sekolah_harian = []
-        vue.$http.post(global_json.general_url+'/absen/sekolah/harian',{
+        vue.$http.post(global_json.general_url+'/absen/sekolah/harian2',{
           sekolah_id:vue.$session.get('id_sekolah'),
           //date_time:moment().get('year')+"-"+(moment().get('month')+1)+"-"+moment().get('date')+"T00:00:00.000+0000"
           date_time:new Date().toISOString()
         }).then(function (data) {
           if(data.body.success == true){              
               var results = data.body.data; 
+                  console.log("Test2 :: "+JSON.stringify(results))
               for(let counter=0;counter<results.length;counter++){
-                if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
+
+                if(results[counter].waktu_datang != 0){
+                  //   var otomatis = 0;
+                  //   if(this.lokalisasi == "WIB"){
+                  //     otomatis = 0
+                  //   }else if(this.lokalisasi == "WITA"){
+                  //      otomatis =1 
+                  //   }else if(this.lokalisasi == "WIT"){
+                  //     otomatis=2
+                  //   }
+
+                  // var tgl = results[counter].waktu_datang
+                  // var sliceTgl = tgl.substr(0,11)
+                  // var zone = results[counter].waktu_datang
+                  // var sliceZone = zone.substr(13,11)
+
+                  // var hours =results[counter].waktu_datang
+                  // var sliceHours = hours.substr(11,2)
+
+                  // var data = parseInt(sliceHours)+otomatis
+                  // var dpad = data.toString()
+                  // var pad = dpad.padStart(2,'0')
+                  
+                  // var done = sliceTgl+""+""+pad+""+sliceZone
+                  // console.log("Done : "+done)
+                  console.log("harian 2 : "+results[counter].waktu_datang)
                   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
                 }
-                if(results[counter].waktu_pulang != 0){                  
+                if(results[counter].waktu_pulang != 0){     
+                  //    var otomatis = 0;
+                  //   if(this.lokalisasi == "WIB"){
+                  //     otomatis = 0
+                  //   }else if(this.lokalisasi == "WITA"){
+                  //      otomatis =1 
+                  //   }else if(this.lokalisasi == "WIT"){
+                  //     otomatis=2
+                  //   }
+
+                  // var tgl = results[counter].waktu_pulang
+                  // var sliceTgl = tgl.substr(0,11)
+                  // var zone = results[counter].waktu_pulang
+                  // var sliceZone = zone.substr(13,11)
+
+                  // var hours =results[counter].waktu_pulang
+                  // var sliceHours = hours.substr(11,2)
+
+                  // var data = parseInt(sliceHours)+otomatis
+                  // var dpad = data.toString()
+                  // var pad = dpad.padStart(2,'0')
+                  
+                  // var done = sliceTgl+""+""+pad+""+sliceZone
+                  // console.log("Done : "+done)
+             
                   results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
                 }
                 
                 vue.sekolah_harian.push(results[counter])
               }
+          
               $("#tombol-unduh-data-absensi").css("display","block") 
               Swal.close()                     
           }else if(data.body.success == false){
@@ -337,6 +403,7 @@
               for(let counter=0;counter<results.length;counter++){
                 this.daftarSiswa.push(results[counter])    
               }            
+              
           }else if(data.body.success == false){
             var pesan = data.body.message;
             //console.log('Kembalian: '+data.body.data.length)
@@ -344,6 +411,9 @@
             //alert(pesan);
           }
         });
+      },
+      getLokalisasi(){
+
       },
       get_all_sekolah(){
         this.$http.post(global_json.general_url+'/absen/sekolah/daftar',{

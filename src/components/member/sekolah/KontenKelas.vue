@@ -465,6 +465,7 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
+      this.getLokalisasi();
       moment.locale('id')      
       this.this_full_date = moment(Date.now()).format('LL');
       this.select_date_get_absen = this.this_date
@@ -503,6 +504,7 @@
           }        
         })
       },
+     
       createKelas: function(){
          Swal({
     //title: 'Processing...',
@@ -543,6 +545,7 @@
           }        
         })
       },
+      
       getAllJurusan: function(){
         this.$http.get(global_json.general_url+'/jurusan/',{}).then(function (data,err) {
           if(data.body.success == true){ 
@@ -666,6 +669,13 @@
           console.log('Upload ke ftp gagal: '+err);
         });        
       },
+       getLokalisasi(){
+           this.$http.get(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
+               _id:this.$session.get('id_sekolah')
+           }).then(function (data,err) {
+             console.log("Tanda : "+JSON.stringify(data))
+           })
+      },
       get_absen(user){
         let vue = this
 
@@ -691,7 +701,7 @@
               if(results.length>0){
                 //alert("data")
                 vue.chartLabel=[];
-                vue.waktuDatang=[];
+                vue.waktuDatang=[]; 
                 vue.waktuPulang=[];
                 vue.tepatDatang=[];
                 vue.tepatPulang=[];
@@ -705,12 +715,13 @@
                     
                   }else{
                      vue.waktuPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)
+
                     
                   }
 
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].datang_string).getTime()/1000){
                 vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
-
+                  
                   }else{
                    vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
 
