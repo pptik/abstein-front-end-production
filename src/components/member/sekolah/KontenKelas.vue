@@ -376,7 +376,7 @@
 
             <br><br>
               <table class="ui celled table grey-text" id="tabel-unduh-data-absensi-1">
-        <!-- <caption>Absensi {{this_date}} {{this_month}} {{this_year}} </caption> -->
+        <!-- <caption>Absensi {{this_date}} {{this_month}} {{this_year}} </capton> -->
                 <thead>
                   <tr>
                     <th style="text-align:center">No</th>          
