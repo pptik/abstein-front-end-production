@@ -318,58 +318,58 @@
               for(let counter=0;counter<results.length;counter++){
 
                 if(results[counter].waktu_datang != 0){
-                  //   var otomatis = 0;
-                  //   if(this.lokalisasi == "WIB"){
-                  //     otomatis = 0
-                  //   }else if(this.lokalisasi == "WITA"){
-                  //      otomatis =1 
-                  //   }else if(this.lokalisasi == "WIT"){
-                  //     otomatis=2
-                  //   }
+                    var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
 
-                  // var tgl = results[counter].waktu_datang
-                  // var sliceTgl = tgl.substr(0,11)
-                  // var zone = results[counter].waktu_datang
-                  // var sliceZone = zone.substr(13,11)
+                  var tgl = results[counter].waktu_datang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_datang
+                  var sliceZone = zone.substr(13,11)
 
-                  // var hours =results[counter].waktu_datang
-                  // var sliceHours = hours.substr(11,2)
+                  var hours =results[counter].waktu_datang
+                  var sliceHours = hours.substr(11,2)
 
-                  // var data = parseInt(sliceHours)+otomatis
-                  // var dpad = data.toString()
-                  // var pad = dpad.padStart(2,'0')
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
                   
-                  // var done = sliceTgl+""+""+pad+""+sliceZone
-                  // console.log("Done : "+done)
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                  console.log("Done : "+done)
                   console.log("harian 2 : "+results[counter].waktu_datang)
-                  results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
+                  results[counter].waktu_datang = moment(done).format('HH.mm.ss')                  
                 }
                 if(results[counter].waktu_pulang != 0){     
-                  //    var otomatis = 0;
-                  //   if(this.lokalisasi == "WIB"){
-                  //     otomatis = 0
-                  //   }else if(this.lokalisasi == "WITA"){
-                  //      otomatis =1 
-                  //   }else if(this.lokalisasi == "WIT"){
-                  //     otomatis=2
-                  //   }
+                     var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
 
-                  // var tgl = results[counter].waktu_pulang
-                  // var sliceTgl = tgl.substr(0,11)
-                  // var zone = results[counter].waktu_pulang
-                  // var sliceZone = zone.substr(13,11)
+                  var tgl = results[counter].waktu_pulang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_pulang
+                  var sliceZone = zone.substr(13,11)
 
-                  // var hours =results[counter].waktu_pulang
-                  // var sliceHours = hours.substr(11,2)
+                  var hours =results[counter].waktu_pulang
+                  var sliceHours = hours.substr(11,2)
 
-                  // var data = parseInt(sliceHours)+otomatis
-                  // var dpad = data.toString()
-                  // var pad = dpad.padStart(2,'0')
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
                   
-                  // var done = sliceTgl+""+""+pad+""+sliceZone
-                  // console.log("Done : "+done)
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                  console.log("Done : "+done)
              
-                  results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
+                  results[counter].waktu_pulang = moment(done).format('HH.mm.ss')
                 }
                 
                 vue.sekolah_harian.push(results[counter])
