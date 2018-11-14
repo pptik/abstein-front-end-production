@@ -237,6 +237,10 @@
             <option :value="tingkat_kelas._id" v-for="tingkat_kelas in create_class_tingkat_lists">{{tingkat_kelas.nama_tingkat}}</option>
           </select>                   
         </div>
+		<div class="field">
+          <label class="grey-text">Nama Kelas</label>
+          <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
+        </div>
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
@@ -509,7 +513,8 @@
         create_siswa_jenis_kelamin: null,
         create_siswa_sandi: null,
         create_siswa_kode_rfid: null,
-        create_siswa_kelas: null
+        create_siswa_kelas: null,
+		create_nama_kelas: null
         //datepickerrekapitulasi: new Date().toISOString()
       }
     },
@@ -571,12 +576,23 @@
           tingkat:this.create_class_tingkat,
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
-          sekolah:this.$session.get('id_sekolah')
+          sekolah:this.$session.get('id_sekolah'),
+		  nama_kelas: this.create_nama_kelas
         }).then(function (data,err) {
           if(data.body.success == true){ 
-            Swal(data.body.data.message)
+            Swal({
+				title: "Berhasil",
+				text: "Data kelas berhasil ditambahkan",
+				type: "success",
+				allowOutsideClick: true
+			})
           }else{
-           Swal(err)
+          Swal({
+				title: "Maaf",
+				text: "Terjadi Kesalahan",
+				type: "error",
+				allowOutsideClick: false
+			})
           }        
         })
       },
