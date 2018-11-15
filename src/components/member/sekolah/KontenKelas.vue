@@ -95,7 +95,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_datang != '0'" bgcolor="green" style="text-align:center">                
-                <a class="ui green large label">{{harian.waktu_datang}}</a>
+                <a class="ui green large label">{{harian.waktu_datang}} {{lokalisasi}}</a>
               </span>
               <br/>
               <br/>
@@ -104,7 +104,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_pulang != '0'" bgcolor="green" style="text-align:center">
-                <a class="ui green large label">{{harian.waktu_pulang}}</a>                
+                <a class="ui green large label">{{harian.waktu_pulang}} {{lokalisasi}}</a>                
               </span>
             </td>
               <!-- <div class="ui list">
@@ -182,7 +182,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_datang != 0" bgcolor="green" style="text-align:center">                
-              <a class="ui green large label">{{sharian.waktu_datang}}</a>
+              <a class="ui green large label">{{sharian.waktu_datang}} {{lokalisasi}}</a>
             </span>
             <br/>
             <br/>
@@ -191,7 +191,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_pulang != 0" bgcolor="green" style="text-align:center">
-              <a class="ui green large label">{{sharian.waktu_pulang}}</a>                
+              <a class="ui green large label">{{sharian.waktu_pulang}} {{lokalisasi}}</a>                
             </span>
           </td>
            <td v-if="sharian.waktu_datang == 0 && sharian.waktu_pulang == 0 " bgcolor="red" style="text-align:center"> 
@@ -235,6 +235,10 @@
           <select class="ui search dropdown" v-model="create_class_tingkat">
             <option :value="tingkat_kelas._id" v-for="tingkat_kelas in create_class_tingkat_lists">{{tingkat_kelas.nama_tingkat}}</option>
           </select>                   
+        </div>
+        <div class="field">
+          <label class="grey-text">Nama Kelas</label>
+          <input type="text" v-model="create_nama_kelas" placeholder="A-Z">
         </div>
         <div class="field">
           <button type="button"
@@ -409,6 +413,7 @@
     name: "konten",
     data(){
       return{
+        lokalisasi:"",
         chartLabel: [],
         //chartLabelY: ["07.00","08.00"]          
         waktuDatang: [],
@@ -456,7 +461,8 @@
         create_siswa_jenis_kelamin: null,
         create_siswa_sandi: null,
         create_siswa_kode_rfid: null,
-        create_siswa_kelas: null
+        create_siswa_kelas: null,
+        create_nama_kelas : null
         //datepickerrekapitulasi: new Date().toISOString()
       }
     },
@@ -465,7 +471,7 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
-      this.getLokalisasi();
+     
       moment.locale('id')      
       this.this_full_date = moment(Date.now()).format('LL');
       this.select_date_get_absen = this.this_date
@@ -515,15 +521,31 @@
     },
   })
         this.$http.post(global_json.general_url+'/kelas/tambah',{
+
           tingkat:this.create_class_tingkat,
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
-          sekolah:this.$session.get('id_sekolah')
+          sekolah:this.$session.get('id_sekolah'),
+          nama_kelas:this.create_nama_kelas
+
+
         }).then(function (data,err) {
+          console.log(JSON.stringify(data));
+          console.log(this.$session.get('id_sekolah'));
           if(data.body.success == true){ 
-            Swal(data.body.data.message)
+            Swal({title:'Berhasil',
+                text:'Data berhasil ditambahkan',
+                type:'success',
+                allowOutsideClick: true
+                })
+           // console.log(data.body.success);
           }else{
-           Swal(err)
+           Swal({title:'Maaf',
+                text:'Terjadi kesalahan.',
+                type:'error',
+                allowOutsideClick: false})
+           console.log(err);
+           //console.log(data);
           }        
         })
       },
@@ -555,30 +577,103 @@
           }        
         })
       },
+
+      get_lokalisasi(){
+           this.$http.post('http://167.205.7.230:3001/absen/sekolah/absen/lokalisasisekolah',{
+               _id:this.$session.get('id_sekolah')
+           }).then(function (data,err) {
+         
+             this.lokalisasi=data.body.data.data_result.kode;
+           })
+      },
+
       downloadRekapitulasi: function(){
         let dateSplitter = this.datepickerrekapitulasi.toISOString().split("T")        
         let dateAdjusted = dateSplitter[0]+"T00:00:00.000+0000"
         this.daterekapitulasi = dateSplitter[0]
         let vue = this
 
-        this.$http.post(global_json.general_url+'/absen/sekolah/harian',{
+        
+        this.$http.post(global_json.general_url+'/absen/sekolah/harian2',{
           sekolah_id:this.$session.get('id_sekolah'),
           //date_time:moment().get('year')+"-"+(moment().get('month')+1)+"-"+moment().get('date')+"T00:00:00.000+0000"
           date_time:dateAdjusted
         }).then(function (data) {
           if(data.body.success == true){   
+              //ambil lokalisasi dlu
+              this.get_lokalisasi();
+
+
               vue.sekolah_harian_rekapitulasi = []           
               var results = data.body.data; 
               //console.log("BISMILLAH: "+JSON.stringify(results))
               for(let counter=0;counter<results.length;counter++){
-                if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
-                  results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
+                if(results[counter].waktu_datang != 0){
+                    var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                      
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
+
+                  var tgl = results[counter].waktu_datang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_datang
+                  var sliceZone = zone.substr(13,11)
+
+                  var hours =results[counter].waktu_datang
+                  var sliceHours = hours.substr(11,2)
+
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
+                  
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                 // console.log("Done : "+done)
+                  //console.log("harian 2 : "+results[counter].waktu_datang)
+                  results[counter].waktu_datang = moment(done).format('HH.mm.ss')                  
                 }
-                if(results[counter].waktu_pulang != 0){                  
-                  results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
+                if(results[counter].waktu_pulang != 0){     
+                     var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
+
+                  var tgl = results[counter].waktu_pulang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_pulang
+                  var sliceZone = zone.substr(13,11)
+
+                  var hours =results[counter].waktu_pulang
+                  var sliceHours = hours.substr(11,2)
+
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
+                  
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                  console.log("Done : "+done)
+             
+                  results[counter].waktu_pulang = moment(done).format('HH.mm.ss')
                 }
                 
                 vue.sekolah_harian_rekapitulasi.push(results[counter])
+                
+                // if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
+                //   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
+                // }
+                // if(results[counter].waktu_pulang != 0){                  
+                //   results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
+                // }
+                
+                // vue.sekolah_harian_rekapitulasi.push(results[counter])
               }
               //$("#tabel-unduh-data-absensi").css("display","block") 
               //$("#tombol-unduh-data-absensi").css("display","block") TOMBOL UNDUH TABEL REKAPITULASI
@@ -673,7 +768,8 @@
            this.$http.get(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
-             console.log("Tanda : "+JSON.stringify(data))
+              console.log("hahah" + this.lokalisasi);
+               this.lokalisasi=data.body.data.data_result.kode;
            })
       },
       get_absen(user){
@@ -782,6 +878,7 @@
               //console.log("Harian kelas: "+JSON.stringify(data.body.data))
               vue.sekolah_harian = []             
               var results = data.body.data; 
+              this.get_lokalisasi();
               for(let counter=0;counter<results.length;counter++){
                 if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
                   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
