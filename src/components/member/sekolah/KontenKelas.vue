@@ -368,7 +368,7 @@
                   <div class="field">
                     <button type="button"
                             style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
-                            v-on:click.prevent="createKelas()" class="huge ui button button-submit">Simpan Address</button>          
+                            v-on:click.prevent="regisMacAdders()" class="huge ui button button-submit">Simpan Address</button>          
                     <!-- <router-link to="" class="white-text">Belum punya akun? Daftar disini</router-link> -->
                   </div>
                 </form>
@@ -388,9 +388,9 @@
                    </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <td style="text-align:center">1</td>
-                    <td>2x:3x:ex:4x:1x:9x</td>
+                  <tr v-for="address,index in macAddressData">
+                    <td style="text-align:center">{{index+1}}</td>
+                    <td>{{address}}</td>
                   </tr>        
                 </tbody>
               </table>
@@ -468,6 +468,7 @@
         chartLabel: [],
         //chartLabelY: ["07.00","08.00"]          
         waktuDatang: [],
+        macAddressData:[],
         waktuPulang: [],
         tepatDatang: [],
         tepatPulang: [],
@@ -523,6 +524,7 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
+      this.get_mac_addressData()
       this.getLokalisasi();
       moment.locale('id')      
       this.this_full_date = moment(Date.now()).format('LL');
@@ -560,6 +562,20 @@
           }else{
            alert(data.body.data[0].message)
           }        
+        })
+      },
+      get_mac_addressData(){
+        this.macAddressData=[]
+        this.$http.post(global_json.general_url+'/absen/sekolah/getMacAdress',{
+          sekolah:this.$session.get('id_sekolah')
+        }).then(function (data,err){
+              if(data.body.success == true){
+                  var results = data.body.data
+                    for(let counter=0;counter<results.length;counter++){
+                this.macAddressData.push(results[counter].address)    
+                console.log("Data Stringify : "+JSON.stringify(this.macAddressData))
+              }  
+              }
         })
       },
      
@@ -745,6 +761,37 @@
              console.log("Tanda : "+JSON.stringify(data))
            })
       },
+      regisMacAdders(){
+         Swal({
+    //title: 'Processing...',
+    html: 'Harap tunggu Data Sedang di proses...',
+    allowOutsideClick : false,
+    onOpen: () => {
+      Swal.showLoading()
+    },
+  })
+        this.$http.post(global_json.general_url+'/absen/sekolah/daftarMacAdress',{
+          macAdress:this.create_mac_address,
+          sekolah:this.$session.get('id_sekolah')
+        }).then(function(data,err){
+         if(data.body.success == true){ 
+            Swal({
+				title: "Berhasil",
+				text: "Data kelas berhasil ditambahkan",
+				type: "success",
+				allowOutsideClick: true
+      })
+      this.macAddressData.push(this.create_mac_address)
+          }else{
+               Swal({
+				title: "Maaf",
+				text: "Terjadi Kesalahan",
+				type: "error",
+				allowOutsideClick: false
+			})
+          }
+        })
+      },
       get_absen(user){
         let vue = this
       console.log("Data Id Absen : "+user)
@@ -810,8 +857,8 @@
                 vue.june_graph();
                 Swal.close()
               }else{
-                Swal({title:'Maaf',
-                text:'Data tidak tersedia.',
+                Swal({title:'Error',
+                text:'Data tidak tersedia Atau Mesin Absetein belum terdaftar',
                 type:'error',
                 allowOutsideClick: false});                
               }
