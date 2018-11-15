@@ -6,6 +6,7 @@
       <a class="item" data-tab="thrid"><span class="grey-text">Rekapitulasi</span></a>      
       <a class="item" data-tab="fourth"><span class="grey-text">Tambah Kelas &amp; Siswa</span></a>
       <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a>
+    <a class="item" data-tab="sixth"><span class="grey-text">Daftar Abstein</span></a>
     </div>
     <div class="ui bottom attached tab segment" data-tab="first">
       <div class="grey-text" style="font-size:xx-large;font-weight:300;margin-top:0.3em;">      
@@ -236,6 +237,10 @@
             <option :value="tingkat_kelas._id" v-for="tingkat_kelas in create_class_tingkat_lists">{{tingkat_kelas.nama_tingkat}}</option>
           </select>                   
         </div>
+		<div class="field">
+          <label class="grey-text">Nama Kelas</label>
+          <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
+        </div>
         <div class="field">
           <label class="grey-text">Nama Kelas</label>
           <input type="text" v-model="create_nama_kelas" placeholder="A-Z">
@@ -348,6 +353,56 @@
     <div class="ui bottom attached tab segment grey-text" data-tab="fifth">
     Cooming Soon :D
     </div>
+      <div class="ui bottom attached tab segment grey-text" data-tab="sixth">
+        <div class="ui two column grid">
+          <div class="row">
+          <div class="column">
+
+        
+              <br><br>
+                 <div class="grey-text" style="font-size:xx-large;font-weight:300;margin-top:0.3em;">      
+                   Tambah Mesin Abstein
+                </div>
+              <br/>
+                <form class="ui form">
+                  <div class="field">
+                    <label class="grey-text">MAC Address</label>
+                    <input type="email" placeholder="sample : 2x:3x:ex:4x:1x:9x" v-model="create_mac_address"/>
+                  </div>
+                  <div class="field">
+                    <button type="button"
+                            style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
+                            v-on:click.prevent="createKelas()" class="huge ui button button-submit">Simpan Address</button>          
+                    <!-- <router-link to="" class="white-text">Belum punya akun? Daftar disini</router-link> -->
+                  </div>
+                </form>
+                <br>
+                <br>
+         
+        </div>
+        <div class="column">
+
+            <br><br>
+              <table class="ui celled table grey-text" id="tabel-unduh-data-absensi-1">
+        <!-- <caption>Absensi {{this_date}} {{this_month}} {{this_year}} </capton> -->
+                <thead>
+                  <tr>
+                    <th style="text-align:center">No</th>          
+                    <th style="text-align:center">Mac Address Yang Terdaftar</th>          
+                   </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="text-align:center">1</td>
+                    <td>2x:3x:ex:4x:1x:9x</td>
+                  </tr>        
+                </tbody>
+              </table>
+              
+        </div>
+            </div>
+        </div>
+    </div>
     <modal name="form-update-absensi">            
         <p style="font-size:150%;padding:1em 1em 0em 1em">
           Form perbaharui status absensi                    
@@ -401,6 +456,7 @@
 </template>
 
 <script>
+ 
   import global_json from '../../../assets/js/globalVariable.json';
   import Chart from 'chart.js';
   import moment from 'moment/moment'
@@ -456,6 +512,7 @@
         create_class_jurusan_lists: [],
         create_class_tingkat_lists: [],
         create_siswa_email: null,
+        create_mac_address:null,
         create_siswa_username: null,
         create_siswa_nama_lengkap: null,
         create_siswa_jenis_kelamin: null,
@@ -463,6 +520,7 @@
         create_siswa_kode_rfid: null,
         create_siswa_kelas: null,
         create_nama_kelas : null
+
         //datepickerrekapitulasi: new Date().toISOString()
       }
     },
@@ -526,13 +584,18 @@
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
+<<<<<<< HEAD
           nama_kelas:this.create_nama_kelas
 
 
+=======
+		  nama_kelas: this.create_nama_kelas
+>>>>>>> fa2e8ab3c9f9a138397be5be698a5e9ce9d7aa70
         }).then(function (data,err) {
           console.log(JSON.stringify(data));
           console.log(this.$session.get('id_sekolah'));
           if(data.body.success == true){ 
+<<<<<<< HEAD
             Swal({title:'Berhasil',
                 text:'Data berhasil ditambahkan',
                 type:'success',
@@ -546,6 +609,21 @@
                 allowOutsideClick: false})
            console.log(err);
            //console.log(data);
+=======
+            Swal({
+				title: "Berhasil",
+				text: "Data kelas berhasil ditambahkan",
+				type: "success",
+				allowOutsideClick: true
+			})
+          }else{
+          Swal({
+				title: "Maaf",
+				text: "Terjadi Kesalahan",
+				type: "error",
+				allowOutsideClick: false
+			})
+>>>>>>> fa2e8ab3c9f9a138397be5be698a5e9ce9d7aa70
           }        
         })
       },
@@ -774,7 +852,8 @@
       },
       get_absen(user){
         let vue = this
-
+      console.log("Data Id Absen : "+user)
+      console.log("Data ID Sekolah : "+vue.$session.get('id_sekolah'))
         Swal({
         allowOutsideClick: false,
         text: 'Mohon tunggu permintaan Anda sedang diproses...',        
@@ -794,6 +873,8 @@
               
               var results = data.body.data.resultArray;
               console.log("SSADS: "+results.length)
+              console.log("Starttime : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")
+              console.log("endtime : "+moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
                 vue.chartLabel=[];
