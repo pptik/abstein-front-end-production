@@ -519,6 +519,7 @@
         create_siswa_sandi: null,
         create_siswa_kode_rfid: null,
         create_siswa_kelas: null,
+
         create_nama_kelas : null
 
         //datepickerrekapitulasi: new Date().toISOString()
@@ -584,32 +585,13 @@
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
-<<<<<<< HEAD
-          nama_kelas:this.create_nama_kelas
 
-
-=======
 		  nama_kelas: this.create_nama_kelas
->>>>>>> fa2e8ab3c9f9a138397be5be698a5e9ce9d7aa70
         }).then(function (data,err) {
           console.log(JSON.stringify(data));
           console.log(this.$session.get('id_sekolah'));
           if(data.body.success == true){ 
-<<<<<<< HEAD
-            Swal({title:'Berhasil',
-                text:'Data berhasil ditambahkan',
-                type:'success',
-                allowOutsideClick: true
-                })
-           // console.log(data.body.success);
-          }else{
-           Swal({title:'Maaf',
-                text:'Terjadi kesalahan.',
-                type:'error',
-                allowOutsideClick: false})
-           console.log(err);
-           //console.log(data);
-=======
+
             Swal({
 				title: "Berhasil",
 				text: "Data kelas berhasil ditambahkan",
@@ -623,7 +605,7 @@
 				type: "error",
 				allowOutsideClick: false
 			})
->>>>>>> fa2e8ab3c9f9a138397be5be698a5e9ce9d7aa70
+
           }        
         })
       },
