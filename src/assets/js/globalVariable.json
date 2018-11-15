@@ -1,6 +1,4 @@
 {
-    "general_url": "http://localhost:3001",
-    
-
+    "general_url": "http://apigeneral.vidyanusa.id",
     "general_url_dev": "http://127.0.0.1:3001"
 }
