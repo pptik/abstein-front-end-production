@@ -241,6 +241,24 @@
           <label class="grey-text">Nama Kelas</label>
           <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
         </div>
+          <div class="ui two column grid">
+            <div class="row">
+              <div class="column">
+                <div class="field">
+                  <label class="grey-text">Jam Datang</label>
+                  <input type="time" v-model="jamDatang" placeholder="Contoh nama kelas: A"/>                 
+                </div>
+              </div>
+              <div class="column">
+                <div class="field">
+                  <label class="grey-text">Jam Pulang</label>
+                  <input type="time" v-model="jamPulang" placeholder="Constoh nama kelas: A"/>                 
+                </div>
+              </div>
+            </div>
+          
+        </div>
+        	<br>
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
@@ -466,6 +484,8 @@
     data(){
       return{
         chartLabel: [],
+        jamDatang:null,
+        jamPulang:null,
         //chartLabelY: ["07.00","08.00"]          
         waktuDatang: [],
         macAddressData:[],
@@ -593,7 +613,9 @@
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
-		  nama_kelas: this.create_nama_kelas
+      nama_kelas: this.create_nama_kelas,
+      jam_masuk:this.jamDatang,
+      jam_pulang:this.jamPulang
         }).then(function (data,err) {
           if(data.body.success == true){ 
             Swal({
@@ -792,6 +814,34 @@
           }
         })
       },
+      cekData(){
+          console.log("jam datang : "+this.jamDatang)
+          console.log("jam pulang : "+this.jamPulang)
+
+       var current_date = new Date();
+                //stage 2
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"
+                ];
+
+                var date = current_date.getDate();
+                var month = current_date.getMonth(); //Be careful! January is 0 not 1
+                var year = current_date.getFullYear();
+                var dateString = date + " " +monthNames[month] + " " + year;
+                
+                //stage 3
+             
+                var eventMasuk = new Date(dateString+' '+this.jamDatang+' UTC+07:00');
+                var eventPulang = new Date(dat)
+                //stage 4  
+
+                var dataJamMasuk = eventMasuk.toISOString();
+
+          
+     
+          
+          console.log("Year : "+dataJamMasuk)
+      },
       get_absen(user){
         let vue = this
       console.log("Data Id Absen : "+user)
@@ -849,7 +899,8 @@
                   console.log("DATA PULANG: "+vue.get_only_time(results[counter].pulang_string).getTime()/1000)
                   console.log("DATA DATANG: "+vue.get_only_time(results[counter].datang_string).getTime()/1000)
                   console.log("DATA DATANG TEPAT: "+vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000)
-                  console.log("DATA PULANG TEPAT: "+vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)                  
+                  console.log("DATA PULANG TEPAT: "+vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)  
+
                   vue.tepatDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   vue.tepatPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000);
                 }
@@ -898,8 +949,9 @@
             date_time:new Date().toISOString() 
         }).then(function (data) {
           if(data.body.success == true){ 
-              //console.log("Harian kelas: "+JSON.stringify(data.body.data))
-              vue.sekolah_harian = []             
+            console.log("Reload : "+data.body.data.length)
+            if(data.body.data.length >0){
+                 vue.sekolah_harian = []             
               var results = data.body.data; 
               for(let counter=0;counter<results.length;counter++){
                 if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
@@ -912,7 +964,17 @@
                 vue.sekolah_harian.push(results[counter])
                 $("#button-export-table").css('display','block')
                 Swal.close()
-              }                         
+              }
+            }else{
+                Swal({title:'Maaf',
+                text:"Result Data Tidak ditemukan",
+                type:'error',
+                allowOutsideClick: false})
+
+                this.sekolah_harian=[]
+            }
+              //console.log("Harian kelas: "+JSON.stringify(data.body.data))
+                                    
           }else if(data.body.success == false){
             var pesan = data.body.message;
             //console.log('Kembalian: '+data.body.data.length)
@@ -1070,6 +1132,7 @@
         var duration=getParent.waktuDatang
         var duration2=getParent.waktuPulang
         var tepatDatang = getParent.tepatDatang
+        console.log("tepat datang:"+tepatDatang)
         var tepatPulang=getParent.tepatPulang
 
         var ctx = document.getElementById("myChart");
