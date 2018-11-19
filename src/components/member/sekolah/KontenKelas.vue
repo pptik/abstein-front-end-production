@@ -24,16 +24,25 @@
               </div>
             </div> -->
             
-            <div class="eight wide column">
-              <div class="field">                
+            <div class="ui two column grid">
+              <div class="row">
+                <div class="column">
                 <span class="grey-text">Pilih Kelas</span>
                 <select class="ui search dropdown" v-on:change="get_all_siswa_by_class(select_class)" v-model="select_class">
                   <option :value="kelas._id" v-for="kelas in daftarKelas">{{kelas.nama_kelas}}</option>
-                </select>   
+                </select> 
+                </div>                
+                  <div class="column">{{done_datang}}</div>
+                          
+              </div>
+              <div class="row">
+                <div class="column">
                 <span class="grey-text">Pilih Siswa</span>
                 <select class="ui search dropdown" v-on:change="get_absen(select_user_id)" v-model="select_user_id">
                   <option :value="siswa._id" v-for="siswa in daftarSiswa">{{siswa.profil.nama_lengkap}}</option>
-                </select>             
+                </select>     
+                </div>
+                <div class="column">{{done_pulang}}</div>  
               </div>              
             </div>            
           </div>                    
@@ -486,6 +495,8 @@
         chartLabel: [],
         jamDatang:null,
         jamPulang:null,
+        done_datang : null,
+        done_pulang:null,
         //chartLabelY: ["07.00","08.00"]          
         waktuDatang: [],
         macAddressData:[],
@@ -1021,7 +1032,24 @@
           vue.$http.post(global_json.general_url+'/absen/siswa/filter/kelas',{          
           kelas_id: classe
           }).then(function (data) {
+            console.log("ID KELAS : "+classe)
             if(data.body.success == true){
+              vue.$http.post(global_json.general_url+'/absen/sekolah/getjamMP',{
+                sekolah: this.$session.get('id_sekolah'),
+                kelas:classe
+              }).then(function(data){
+                var maxDatang = data.body.data.jam_masuk.toString()
+                var dateDatang = new Date(maxDatang)
+                var doneDatang = "Batas Waktu Datang JAM "+moment(dateDatang).format('hh:mm a')
+
+                this.done_datang = doneDatang
+
+                var maxPulang = data.body.data.jam_pulang.toString()
+                var datePulang = new Date(maxPulang)
+                var donePulang = "Jam Kepulangan JAM "+moment(datePulang).format('hh:mm a')
+
+                this.done_pulang = donePulang
+              })
                 //alert(JSON.stringify(data.body))
                 //console.log("daftar siswa dlm sekolah: "+JSON.stringify(data.body))
                 var results = data.body.data;
@@ -1037,6 +1065,7 @@
             }
           });
         }})
+
                 
       },
       get_all_siswa_by_class_rekapitulasi(classe){
