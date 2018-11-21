@@ -854,7 +854,14 @@
           console.log("Year : "+dataJamMasuk)
       },
       get_absen(user){
+        
         let vue = this
+          vue.chartLabel.length=0;
+                vue.waktuDatang.length=0; 
+                vue.waktuPulang.length=0;
+                vue.tepatDatang.length=0;
+                vue.tepatPulang.length=0;
+        console.log("chartLabel : "+JSON.stringify(vue.chartLabel))
       console.log("Data Id Absen : "+user)
       console.log("Data ID Sekolah : "+vue.$session.get('id_sekolah'))
         Swal({
@@ -873,18 +880,14 @@
             user_id:user
           }).then(function (data) {
             if(data.body.success == true){
-              
+               
               var results = data.body.data.resultArray;
               console.log("SSADS: "+results.length)
               console.log("Starttime : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")
               console.log("endtime : "+moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
-                vue.chartLabel=[];
-                vue.waktuDatang=[]; 
-                vue.waktuPulang=[];
-                vue.tepatDatang=[];
-                vue.tepatPulang=[];
+             
                 for(let counter=0;counter<results.length;counter++){
                   console.log("XXI:"+moment(results[counter].tanggal_string).format('DD'))
                   vue.chartLabel.push(moment(results[counter].tanggal_string).format('DD'))
@@ -915,7 +918,7 @@
                   vue.tepatDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   vue.tepatPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000);
                 }
-
+              console.log("Data ChartLAbel After : "+JSON.stringify(vue.chartLabel))
                 vue.june_graph();
                 Swal.close()
               }else{
