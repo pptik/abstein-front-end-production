@@ -38,7 +38,7 @@
               <div class="row">
                 <div class="column">
                 <span class="grey-text">Pilih Siswa</span>
-                <select class="ui search dropdown" v-on:change="get_absen(select_user_id)" v-model="select_user_id">
+                <select class="ui search dropdown" v-on:change="get_absen(select_user_id,select_class)" v-model="select_user_id">
                   <option :value="siswa._id" v-for="siswa in daftarSiswa">{{siswa.profil.nama_lengkap}}</option>
                 </select>     
                 </div>
@@ -105,7 +105,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_datang != '0'" bgcolor="green" style="text-align:center">                
-                <a class="ui green large label">{{harian.waktu_datang}}</a>
+                <a class="ui green large label">{{harian.waktu_datang}} {{lokalisasi}}</a>
               </span>
               <br/>
               <br/>
@@ -114,7 +114,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_pulang != '0'" bgcolor="green" style="text-align:center">
-                <a class="ui green large label">{{harian.waktu_pulang}}</a>                
+                <a class="ui green large label">{{harian.waktu_pulang}} {{lokalisasi}}</a>                
               </span>
             </td>
               <!-- <div class="ui list">
@@ -192,7 +192,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_datang != 0" bgcolor="green" style="text-align:center">                
-              <a class="ui green large label">{{sharian.waktu_datang}}</a>
+              <a class="ui green large label">{{sharian.waktu_datang}} {{lokalisasi}}</a>
             </span>
             <br/>
             <br/>
@@ -201,7 +201,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_pulang != 0" bgcolor="green" style="text-align:center">
-              <a class="ui green large label">{{sharian.waktu_pulang}}</a>                
+              <a class="ui green large label">{{sharian.waktu_pulang}} {{lokalisasi}}</a>                
             </span>
           </td>
            <td v-if="sharian.waktu_datang == 0 && sharian.waktu_pulang == 0 " bgcolor="red" style="text-align:center"> 
@@ -492,6 +492,7 @@
     name: "konten",
     data(){
       return{
+        lokalisasi:"",
         chartLabel: [],
         exportState:'0',
         jamDatang:null,
@@ -547,7 +548,9 @@
         create_siswa_sandi: null,
         create_siswa_kode_rfid: null,
         create_siswa_kelas: null,
-		create_nama_kelas: null
+
+        create_nama_kelas : null
+
         //datepickerrekapitulasi: new Date().toISOString()
       }
     },
@@ -556,6 +559,7 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
+
       this.get_mac_addressData()
       this.getLokalisasi();
       moment.locale('id')      
@@ -621,15 +625,22 @@
     },
   })
         this.$http.post(global_json.general_url+'/kelas/tambah',{
+
           tingkat:this.create_class_tingkat,
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
+
+
       nama_kelas: this.create_nama_kelas,
       jam_masuk:this.jamDatang,
       jam_pulang:this.jamPulang
+
         }).then(function (data,err) {
+          console.log(JSON.stringify(data));
+          console.log(this.$session.get('id_sekolah'));
           if(data.body.success == true){ 
+
             Swal({
 				title: "Berhasil",
 				text: "Data kelas berhasil ditambahkan",
@@ -643,6 +654,7 @@
 				type: "error",
 				allowOutsideClick: false
 			})
+
           }        
         })
       },
@@ -674,30 +686,103 @@
           }        
         })
       },
+
+      get_lokalisasi(){
+           this.$http.post('http://167.205.7.230:3001/absen/sekolah/absen/lokalisasisekolah',{
+               _id:this.$session.get('id_sekolah')
+           }).then(function (data,err) {
+             console(data);
+             this.lokalisasi = data.body.data.data_result.kode;
+           })
+      },
+
       downloadRekapitulasi: function(){
         let dateSplitter = this.datepickerrekapitulasi.toISOString().split("T")        
         let dateAdjusted = dateSplitter[0]+"T00:00:00.000+0000"
         this.daterekapitulasi = dateSplitter[0]
         let vue = this
 
-        this.$http.post(global_json.general_url+'/absen/sekolah/harian',{
+        
+        this.$http.post(global_json.general_url+'/absen/sekolah/harian2',{
           sekolah_id:this.$session.get('id_sekolah'),
           //date_time:moment().get('year')+"-"+(moment().get('month')+1)+"-"+moment().get('date')+"T00:00:00.000+0000"
           date_time:dateAdjusted
         }).then(function (data) {
           if(data.body.success == true){   
+              //ambil lokalisasi dlu
+              this.get_lokalisasi();
+
+
               vue.sekolah_harian_rekapitulasi = []           
               var results = data.body.data; 
               //console.log("BISMILLAH: "+JSON.stringify(results))
               for(let counter=0;counter<results.length;counter++){
-                if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
-                  results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
+                if(results[counter].waktu_datang != 0){
+                    var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                      
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
+
+                  var tgl = results[counter].waktu_datang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_datang
+                  var sliceZone = zone.substr(13,11)
+
+                  var hours =results[counter].waktu_datang
+                  var sliceHours = hours.substr(11,2)
+
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
+                  
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                 // console.log("Done : "+done)
+                  //console.log("harian 2 : "+results[counter].waktu_datang)
+                  results[counter].waktu_datang = moment(done).format('HH.mm.ss')                  
                 }
-                if(results[counter].waktu_pulang != 0){                  
-                  results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
+                if(results[counter].waktu_pulang != 0){     
+                     var otomatis = 0;
+                    if(this.lokalisasi == "WIB"){
+                      otomatis = 0
+                    }else if(this.lokalisasi == "WITA"){
+                       otomatis =1 
+                    }else if(this.lokalisasi == "WIT"){
+                      otomatis=2
+                    }
+
+                  var tgl = results[counter].waktu_pulang
+                  var sliceTgl = tgl.substr(0,11)
+                  var zone = results[counter].waktu_pulang
+                  var sliceZone = zone.substr(13,11)
+
+                  var hours =results[counter].waktu_pulang
+                  var sliceHours = hours.substr(11,2)
+
+                  var data = parseInt(sliceHours)+otomatis
+                  var dpad = data.toString()
+                  var pad = dpad.padStart(2,'0')
+                  
+                  var done = sliceTgl+""+""+pad+""+sliceZone
+                  console.log("Done : "+done)
+             
+                  results[counter].waktu_pulang = moment(done).format('HH.mm.ss')
                 }
                 
                 vue.sekolah_harian_rekapitulasi.push(results[counter])
+                
+                // if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
+                //   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
+                // }
+                // if(results[counter].waktu_pulang != 0){                  
+                //   results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
+                // }
+                
+                // vue.sekolah_harian_rekapitulasi.push(results[counter])
               }
               //$("#tabel-unduh-data-absensi").css("display","block") 
               //$("#tombol-unduh-data-absensi").css("display","block") TOMBOL UNDUH TABEL REKAPITULASI
@@ -799,7 +884,8 @@ this.this_class = $("#select-kelas option:selected").text();
            this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
-             console.log("Tanda : "+JSON.stringify(data))
+              console.log("hahah" + this.lokalisasi);
+               this.lokalisasi=data.body.data.data_result.kode;
            })
       },
       regisMacAdders(){
@@ -861,8 +947,8 @@ this.this_class = $("#select-kelas option:selected").text();
           
           console.log("Year : "+dataJamMasuk)
       },
-      get_absen(user){
-        
+      get_absen(user,selectClass){
+    
         let vue = this
           vue.chartLabel.length=0;
                 vue.waktuDatang.length=0; 
@@ -872,33 +958,59 @@ this.this_class = $("#select-kelas option:selected").text();
         console.log("chartLabel : "+JSON.stringify(vue.chartLabel))
       console.log("Data Id Absen : "+user)
       console.log("Data ID Sekolah : "+vue.$session.get('id_sekolah'))
-        Swal({
+      //console.log("select kelas" + selectClass);
+      
+      Swal({
         allowOutsideClick: false,
         text: 'Mohon tunggu permintaan Anda sedang diproses...',        
         onOpen: function () {
           Swal.showLoading()
-          console.log("Start time month: "+parseInt(moment().get('month')+1))
-          console.log("End time month: "+parseInt(moment().get('month')+2))
+
+          var startMonth = parseInt(moment().get('month')+1);
+          var endMonth = parseInt(moment().get('month')+2);
+
+          var startYear = moment().get('year');
+          var endYear = moment().get('year')
+
+          if(endMonth == 13){
+            endMonth = "01";
+            endYear = moment().get('year') + 1;
+          }
+
+          
+          console.log("Start time month: "+startMonth)
+          console.log("End time month: "+endMonth)
+          console.log("Yeah: "+endYear)
+
+
           vue.$http.post(global_json.general_url+'/absen/query',{
             sekolah_id:vue.$session.get('id_sekolah'),
-            start_time:moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000",
-            end_time:moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000",
+            start_time:startYear+"-"+startMonth+"-01T00:00:00.000+0000",
+            end_time: endYear+"-"+endMonth+"-01T00:00:00.000+0000",
             /* start_time:"2018-07-01T00:00:00.000+0000",
             end_time:"2018-08-01T00:00:00.000+0000", */
-            user_id:user
+            user_id:user,
+            idKelas:selectClass
           }).then(function (data) {
             if(data.body.success == true){
                
               var results = data.body.data.resultArray;
+             
               console.log("SSADS: "+results.length)
-              console.log("Starttime : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")
-              console.log("endtime : "+moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000")
+              console.log("Starttime : "+startYear+"-"+startMonth+"-01T00:00:00.000+0000")
+              console.log("endtime : "+endYear+"-"+endMonth+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
-             
-                for(let counter=0;counter<results.length;counter++){
+                vue.chartLabel=[];
+                vue.waktuDatang=[]; 
+                vue.waktuPulang=[];
+                vue.tepatDatang=[];
+                vue.tepatPulang=[];
+
+                 for(let counter=0;counter<results.length;counter++){
                   console.log("XXI:"+moment(results[counter].tanggal_string).format('DD'))
                   vue.chartLabel.push(moment(results[counter].tanggal_string).format('DD'))
+                  //console.log("DATAAAAAA "+ vue.get_only_time(results[counter].max_kepulangan_string));
                  
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].pulang_string).getTime()/1000){
                       vue.waktuPulang.push(vue.get_only_time(results[counter].pulang_string).getTime()/1000)
@@ -911,7 +1023,7 @@ this.this_class = $("#select-kelas option:selected").text();
                   }
 
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].datang_string).getTime()/1000){
-                vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
+                 vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   
                   }else{
                    vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
@@ -933,7 +1045,8 @@ this.this_class = $("#select-kelas option:selected").text();
                 Swal({title:'Error',
                 text:'Data tidak tersedia Atau Mesin Absetein belum terdaftar',
                 type:'error',
-                allowOutsideClick: false});                
+                allowOutsideClick: false});            
+                
               }
 
             
@@ -975,6 +1088,7 @@ this.this_class = $("#select-kelas option:selected").text();
             if(data.body.data.length >0){
                  vue.sekolah_harian = []             
               var results = data.body.data; 
+              this.get_lokalisasi();
               for(let counter=0;counter<results.length;counter++){
                 if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
                   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
@@ -1050,14 +1164,18 @@ this.this_class = $("#select-kelas option:selected").text();
                 kelas:classe
               }).then(function(data){
                 var maxDatang = data.body.data.jam_masuk.toString()
-                var dateDatang = new Date(maxDatang)
-                var doneDatang = "Batas Waktu Datang JAM "+moment(dateDatang).format('hh:mm a')
 
+                var maxDatanggg = data.body.data.jam_masuk
+                
+                var dateDatang = new Date(maxDatang)
+                var doneDatang = "Batas Waktu Datang JAM "+moment.utc(dateDatang).format('hh:mm a')
+                console.log(maxDatanggg);
                 this.done_datang = doneDatang
 
                 var maxPulang = data.body.data.jam_pulang.toString()
                 var datePulang = new Date(maxPulang)
-                var donePulang = "Jam Kepulangan JAM "+moment(datePulang).format('hh:mm a')
+
+                var donePulang = "Jam Kepulangan JAM "+moment.utc(datePulang).format('hh:mm a')
 
                 this.done_pulang = donePulang
               })

@@ -37,21 +37,17 @@
       <br/>
       <form class="ui form">
         <div class="field">
-          <label class="grey-text">Password Lama </label>
-           <input type="password" autocomplete="password" placeholder="email" v-model="password_lama"/>                
-        </div>
-        <div class="field">
           <label class="grey-text">Password Baru </label>
-           <input type="password" autocomplete="password" placeholder="email" v-model="password"/>                
+           <input type="password" autocomplete="password" placeholder="password" v-model="password"/>                
         </div>
          <div class="field">
           <label class="grey-text">Password Baru verif</label>
-           <input type="password" autocomplete="password" placeholder="email" v-model="password"/>                
+           <input type="password" autocomplete="password" placeholder="email" v-model="password_verif"/>                
         </div>
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
-                  v-on:click.prevent="UpdateEmail()" class="huge ui button button-submit">Update</button>          
+                  v-on:click.prevent="gantiPassword()" class="huge ui button button-submit">Update</button>          
           <!-- <router-link to="" class="white-text">Belum punya akun? Daftar disini</router-link> -->
         </div>
       </form>
@@ -98,6 +94,36 @@
       this.getAllTingkatKelas()      
     },
     methods: {
+      gantiPassword: function(){
+        console.log(this)
+        if(this.password == null && this.password_verif == null){
+        Swal({title:"Harap Mengisi Semua Input"});
+        }
+        
+        if(this.password_verif == this.password){
+           Swal({
+          //title: 'Processing...',
+          html: 'Harap tunggu Data Sedang di proses...',
+          allowOutsideClick : false,
+          onOpen: () => {
+            Swal.showLoading()
+          },
+        })
+        //console.log(this.$session.get('user_id'));
+        this.$http.post(global_json.general_url+'/absen/sekolah/absen/gantipassword',{
+          _id:this.$session.get('user_id'),
+          newPassword:this.password
+        }).then(function (data,err) {
+          if(data.body.success == true){ 
+            Swal(data.body.data.message)
+          }else{
+           Swal(err)
+          }        
+        })
+      }else{
+        Swal({title:"Password Yang Anda Masukan Salah"})
+      }},
+
       createSiswa: function(){
         this.$http.post(global_json.general_url+'/daftar/proses/siswa_absensi',{
           email:this.create_siswa_email,
@@ -119,6 +145,8 @@
       },
       UpdateEmail: function(){
         console.log(this)
+        
+        
         if(this.password == null && this.email==null){
 Swal({title:"Harap Mengisi Semua Input"});
         }else if(this.password == this.$session.get('password')){
