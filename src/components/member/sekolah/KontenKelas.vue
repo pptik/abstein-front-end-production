@@ -250,10 +250,6 @@
           <label class="grey-text">Nama Kelas</label>
           <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
         </div>
-<<<<<<< HEAD
-
-=======
->>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
           <div class="ui two column grid">
             <div class="row">
               <div class="column">
@@ -272,10 +268,6 @@
           
         </div>
         	<br>
-<<<<<<< HEAD
-
-=======
->>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
@@ -919,10 +911,6 @@
           }
         })
       },
-<<<<<<< HEAD
-
-=======
->>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
       cekData(){
           console.log("jam datang : "+this.jamDatang)
           console.log("jam pulang : "+this.jamPulang)
