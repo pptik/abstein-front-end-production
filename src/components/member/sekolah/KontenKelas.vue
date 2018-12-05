@@ -250,7 +250,10 @@
           <label class="grey-text">Nama Kelas</label>
           <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
         </div>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
           <div class="ui two column grid">
             <div class="row">
               <div class="column">
@@ -269,7 +272,10 @@
           
         </div>
         	<br>
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
@@ -632,6 +638,7 @@
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
 
+
       nama_kelas: this.create_nama_kelas,
       jam_masuk:this.jamDatang,
       jam_pulang:this.jamPulang
@@ -912,7 +919,10 @@
           }
         })
       },
+<<<<<<< HEAD
 
+=======
+>>>>>>> 1fbebe4058c82085d80feb93b92f10bc75908b67
       cekData(){
           console.log("jam datang : "+this.jamDatang)
           console.log("jam pulang : "+this.jamPulang)
@@ -995,7 +1005,6 @@
               console.log("endtime : "+endYear+"-"+endMonth+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
-
                 vue.chartLabel=[];
                 vue.waktuDatang=[]; 
                 vue.waktuPulang=[];
@@ -1159,16 +1168,17 @@
                 kelas:classe
               }).then(function(data){
                 var maxDatang = data.body.data.jam_masuk.toString()
+
                 var maxDatanggg = data.body.data.jam_masuk
                 
                 var dateDatang = new Date(maxDatang)
                 var doneDatang = "Batas Waktu Datang JAM "+moment.utc(dateDatang).format('hh:mm a')
                 console.log(maxDatanggg);
-
                 this.done_datang = doneDatang
 
                 var maxPulang = data.body.data.jam_pulang.toString()
                 var datePulang = new Date(maxPulang)
+
                 var donePulang = "Jam Kepulangan JAM "+moment.utc(datePulang).format('hh:mm a')
 
                 this.done_pulang = donePulang
