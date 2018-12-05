@@ -5,8 +5,8 @@
       <a class="active item" data-tab="second"><span class="grey-text">Tabulasi</span></a>      
       <a class="item" data-tab="thrid"><span class="grey-text">Rekapitulasi</span></a>      
       <a class="item" data-tab="fourth"><span class="grey-text">Tambah Kelas &amp; Siswa</span></a>
-      <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a>
-    <a class="item" data-tab="sixth"><span class="grey-text">Daftar Abstein</span></a>
+      <!-- <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a> -->
+    <a class="item" data-tab="sixth"><span class="grey-text">Daftar Mesin</span></a>
     </div>
     <div class="ui bottom attached tab segment" data-tab="first">
       <div class="grey-text" style="font-size:xx-large;font-weight:300;margin-top:0.3em;">      
@@ -60,7 +60,7 @@
           <option :value="kelas._id" v-for="kelas in daftarKelasRekapitulasi">{{kelas.nama_kelas}}</option>
         </select>                   
       </div>
-      <a href="#"id="button-export-table"  v-on:click.prevent="export_tabel" style="margin-top:1em;"> <i class="download icon"></i> Unduh Data Absensi</a>       
+      <a href="#"id="button-export-table"  v-on:click.prevent="export_tabel(exportState)" style="margin-top:1em;"> <i class="download icon"></i> Unduh Data Absensi</a>       
      <table class="ui celled table grey-text" id="tabel-unduh-data-absensi-1">
         <!-- <caption>Absensi {{this_date}} {{this_month}} {{this_year}} </caption> -->
         <thead>
@@ -493,6 +493,7 @@
     data(){
       return{
         chartLabel: [],
+        exportState:'0',
         jamDatang:null,
         jamPulang:null,
         done_datang : null,
@@ -729,8 +730,9 @@
       close_update_form_absent: function(){
         this.$modal.hide('form-update-absensi');
       },
-      export_tabel: function(){
-        this.this_class = $("#select-kelas option:selected").text();
+      export_tabel: function(State){
+        if(State=='0'){
+this.this_class = $("#select-kelas option:selected").text();
         let vue = this
         table_export(document.getElementById("tabel-unduh-data-absensi-1"),{          
           formats: ['xlsx', 'csv'],            // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
@@ -741,6 +743,12 @@
           ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
           trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
         })
+
+        this.exportState='1'
+        }else{
+          console.log("Data Export " +this.exportState)
+        }
+        
       },
        export_tabel_rekapitulasi: function(){
         //this.this_class = $("#select-kelas option:selected").text();
@@ -788,7 +796,7 @@
         });        
       },
        getLokalisasi(){
-           this.$http.get(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
+           this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
              console.log("Tanda : "+JSON.stringify(data))
