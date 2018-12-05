@@ -24,16 +24,25 @@
               </div>
             </div> -->
             
-            <div class="eight wide column">
-              <div class="field">                
+            <div class="ui two column grid">
+              <div class="row">
+                <div class="column">
                 <span class="grey-text">Pilih Kelas</span>
                 <select class="ui search dropdown" v-on:change="get_all_siswa_by_class(select_class)" v-model="select_class">
                   <option :value="kelas._id" v-for="kelas in daftarKelas">{{kelas.nama_kelas}}</option>
-                </select>   
+                </select> 
+                </div>                
+                  <div class="column">{{done_datang}}</div>
+                          
+              </div>
+              <div class="row">
+                <div class="column">
                 <span class="grey-text">Pilih Siswa</span>
-                <select class="ui search dropdown" v-on:change="get_absen(select_user_id)" v-model="select_user_id">
+                <select class="ui search dropdown" v-on:change="get_absen(select_user_id,select_class)" v-model="select_user_id">
                   <option :value="siswa._id" v-for="siswa in daftarSiswa">{{siswa.profil.nama_lengkap}}</option>
-                </select>             
+                </select>     
+                </div>
+                <div class="column">{{done_pulang}}</div>  
               </div>              
             </div>            
           </div>                    
@@ -241,10 +250,26 @@
           <label class="grey-text">Nama Kelas</label>
           <input type="text" v-model="create_nama_kelas" placeholder="Contoh nama kelas: A"/>                 
         </div>
-        <div class="field">
-          <label class="grey-text">Nama Kelas</label>
-          <input type="text" v-model="create_nama_kelas" placeholder="A-Z">
+
+          <div class="ui two column grid">
+            <div class="row">
+              <div class="column">
+                <div class="field">
+                  <label class="grey-text">Jam Datang</label>
+                  <input type="time" v-model="jamDatang" placeholder="Contoh nama kelas: A"/>                 
+                </div>
+              </div>
+              <div class="column">
+                <div class="field">
+                  <label class="grey-text">Jam Pulang</label>
+                  <input type="time" v-model="jamPulang" placeholder="Constoh nama kelas: A"/>                 
+                </div>
+              </div>
+            </div>
+          
         </div>
+        	<br>
+
         <div class="field">
           <button type="button"
                   style="background: linear-gradient(141deg, #2ecc71 10%, #27ae60 51%, #27ae60 75%);color:#FFFFFF;"
@@ -471,6 +496,10 @@
       return{
         lokalisasi:"",
         chartLabel: [],
+        jamDatang:null,
+        jamPulang:null,
+        done_datang : null,
+        done_pulang:null,
         //chartLabelY: ["07.00","08.00"]          
         waktuDatang: [],
         macAddressData:[],
@@ -531,12 +560,9 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
-<<<<<<< HEAD
-     
-=======
+
       this.get_mac_addressData()
       this.getLokalisasi();
->>>>>>> 530c3b5beca322b9ef95c5ab2bdb36fa3fe537ac
       moment.locale('id')      
       this.this_full_date = moment(Date.now()).format('LL');
       this.select_date_get_absen = this.this_date
@@ -606,7 +632,10 @@
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
 
-		  nama_kelas: this.create_nama_kelas
+      nama_kelas: this.create_nama_kelas,
+      jam_masuk:this.jamDatang,
+      jam_pulang:this.jamPulang
+
         }).then(function (data,err) {
           console.log(JSON.stringify(data));
           console.log(this.$session.get('id_sekolah'));
@@ -662,8 +691,8 @@
            this.$http.post('http://167.205.7.230:3001/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
-         
-             this.lokalisasi=data.body.data.data_result.kode;
+             console(data);
+             this.lokalisasi = data.body.data.data_result.kode;
            })
       },
 
@@ -845,7 +874,7 @@
         });        
       },
        getLokalisasi(){
-           this.$http.get(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
+           this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
               console.log("hahah" + this.lokalisasi);
@@ -883,41 +912,100 @@
           }
         })
       },
-      get_absen(user){
+
+      cekData(){
+          console.log("jam datang : "+this.jamDatang)
+          console.log("jam pulang : "+this.jamPulang)
+
+       var current_date = new Date();
+                //stage 2
+                const monthNames = ["January", "February", "March", "April", "May", "June",
+                  "July", "August", "September", "October", "November", "December"
+                ];
+
+                var date = current_date.getDate();
+                var month = current_date.getMonth(); //Be careful! January is 0 not 1
+                var year = current_date.getFullYear();
+                var dateString = date + " " +monthNames[month] + " " + year;
+                
+                //stage 3
+             
+                var eventMasuk = new Date(dateString+' '+this.jamDatang+' UTC+07:00');
+                var eventPulang = new Date(dat)
+                //stage 4  
+
+                var dataJamMasuk = eventMasuk.toISOString();
+
+          
+     
+          
+          console.log("Year : "+dataJamMasuk)
+      },
+      get_absen(user,selectClass){
+    
         let vue = this
+          vue.chartLabel.length=0;
+                vue.waktuDatang.length=0; 
+                vue.waktuPulang.length=0;
+                vue.tepatDatang.length=0;
+                vue.tepatPulang.length=0;
+        console.log("chartLabel : "+JSON.stringify(vue.chartLabel))
       console.log("Data Id Absen : "+user)
       console.log("Data ID Sekolah : "+vue.$session.get('id_sekolah'))
-        Swal({
+      //console.log("select kelas" + selectClass);
+      
+      Swal({
         allowOutsideClick: false,
         text: 'Mohon tunggu permintaan Anda sedang diproses...',        
         onOpen: function () {
           Swal.showLoading()
-          console.log("Start time month: "+parseInt(moment().get('month')+1))
-          console.log("End time month: "+parseInt(moment().get('month')+2))
+
+          var startMonth = parseInt(moment().get('month')+1);
+          var endMonth = parseInt(moment().get('month')+2);
+
+          var startYear = moment().get('year');
+          var endYear = moment().get('year')
+
+          if(endMonth == 13){
+            endMonth = "01";
+            endYear = moment().get('year') + 1;
+          }
+
+          
+          console.log("Start time month: "+startMonth)
+          console.log("End time month: "+endMonth)
+          console.log("Yeah: "+endYear)
+
+
           vue.$http.post(global_json.general_url+'/absen/query',{
             sekolah_id:vue.$session.get('id_sekolah'),
-            start_time:moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000",
-            end_time:moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000",
+            start_time:startYear+"-"+startMonth+"-01T00:00:00.000+0000",
+            end_time: endYear+"-"+endMonth+"-01T00:00:00.000+0000",
             /* start_time:"2018-07-01T00:00:00.000+0000",
             end_time:"2018-08-01T00:00:00.000+0000", */
-            user_id:user
+            user_id:user,
+            idKelas:selectClass
           }).then(function (data) {
             if(data.body.success == true){
-              
+               
               var results = data.body.data.resultArray;
+             
               console.log("SSADS: "+results.length)
-              console.log("Starttime : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")
-              console.log("endtime : "+moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000")
+              console.log("Starttime : "+startYear+"-"+startMonth+"-01T00:00:00.000+0000")
+              console.log("endtime : "+endYear+"-"+endMonth+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
+
                 vue.chartLabel=[];
                 vue.waktuDatang=[]; 
                 vue.waktuPulang=[];
                 vue.tepatDatang=[];
                 vue.tepatPulang=[];
-                for(let counter=0;counter<results.length;counter++){
+
+                 for(let counter=0;counter<results.length;counter++){
                   console.log("XXI:"+moment(results[counter].tanggal_string).format('DD'))
                   vue.chartLabel.push(moment(results[counter].tanggal_string).format('DD'))
+                  //console.log("DATAAAAAA "+ vue.get_only_time(results[counter].max_kepulangan_string));
                  
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].pulang_string).getTime()/1000){
                       vue.waktuPulang.push(vue.get_only_time(results[counter].pulang_string).getTime()/1000)
@@ -930,7 +1018,7 @@
                   }
 
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].datang_string).getTime()/1000){
-                vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
+                 vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   
                   }else{
                    vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
@@ -940,18 +1028,20 @@
                   console.log("DATA PULANG: "+vue.get_only_time(results[counter].pulang_string).getTime()/1000)
                   console.log("DATA DATANG: "+vue.get_only_time(results[counter].datang_string).getTime()/1000)
                   console.log("DATA DATANG TEPAT: "+vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000)
-                  console.log("DATA PULANG TEPAT: "+vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)                  
+                  console.log("DATA PULANG TEPAT: "+vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000)  
+
                   vue.tepatDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   vue.tepatPulang.push(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000);
                 }
-
+              console.log("Data ChartLAbel After : "+JSON.stringify(vue.chartLabel))
                 vue.june_graph();
                 Swal.close()
               }else{
                 Swal({title:'Error',
                 text:'Data tidak tersedia Atau Mesin Absetein belum terdaftar',
                 type:'error',
-                allowOutsideClick: false});                
+                allowOutsideClick: false});            
+                
               }
 
             
@@ -989,8 +1079,9 @@
             date_time:new Date().toISOString() 
         }).then(function (data) {
           if(data.body.success == true){ 
-              //console.log("Harian kelas: "+JSON.stringify(data.body.data))
-              vue.sekolah_harian = []             
+            console.log("Reload : "+data.body.data.length)
+            if(data.body.data.length >0){
+                 vue.sekolah_harian = []             
               var results = data.body.data; 
               this.get_lokalisasi();
               for(let counter=0;counter<results.length;counter++){
@@ -1004,7 +1095,17 @@
                 vue.sekolah_harian.push(results[counter])
                 $("#button-export-table").css('display','block')
                 Swal.close()
-              }                         
+              }
+            }else{
+                Swal({title:'Maaf',
+                text:"Result Data Tidak ditemukan",
+                type:'error',
+                allowOutsideClick: false})
+
+                this.sekolah_harian=[]
+            }
+              //console.log("Harian kelas: "+JSON.stringify(data.body.data))
+                                    
           }else if(data.body.success == false){
             var pesan = data.body.message;
             //console.log('Kembalian: '+data.body.data.length)
@@ -1051,7 +1152,27 @@
           vue.$http.post(global_json.general_url+'/absen/siswa/filter/kelas',{          
           kelas_id: classe
           }).then(function (data) {
+            console.log("ID KELAS : "+classe)
             if(data.body.success == true){
+              vue.$http.post(global_json.general_url+'/absen/sekolah/getjamMP',{
+                sekolah: this.$session.get('id_sekolah'),
+                kelas:classe
+              }).then(function(data){
+                var maxDatang = data.body.data.jam_masuk.toString()
+                var maxDatanggg = data.body.data.jam_masuk
+                
+                var dateDatang = new Date(maxDatang)
+                var doneDatang = "Batas Waktu Datang JAM "+moment.utc(dateDatang).format('hh:mm a')
+                console.log(maxDatanggg);
+
+                this.done_datang = doneDatang
+
+                var maxPulang = data.body.data.jam_pulang.toString()
+                var datePulang = new Date(maxPulang)
+                var donePulang = "Jam Kepulangan JAM "+moment.utc(datePulang).format('hh:mm a')
+
+                this.done_pulang = donePulang
+              })
                 //alert(JSON.stringify(data.body))
                 //console.log("daftar siswa dlm sekolah: "+JSON.stringify(data.body))
                 var results = data.body.data;
@@ -1067,6 +1188,7 @@
             }
           });
         }})
+
                 
       },
       get_all_siswa_by_class_rekapitulasi(classe){
@@ -1162,6 +1284,7 @@
         var duration=getParent.waktuDatang
         var duration2=getParent.waktuPulang
         var tepatDatang = getParent.tepatDatang
+        console.log("tepat datang:"+tepatDatang)
         var tepatPulang=getParent.tepatPulang
 
         var ctx = document.getElementById("myChart");
