@@ -687,7 +687,7 @@
       },
 
       get_lokalisasi(){
-           this.$http.post('http://167.205.7.230:3001/absen/sekolah/absen/lokalisasisekolah',{
+           this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
              console(data);
