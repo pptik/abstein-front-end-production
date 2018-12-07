@@ -5,8 +5,8 @@
       <a class="active item" data-tab="second"><span class="grey-text">Tabulasi</span></a>      
       <a class="item" data-tab="thrid"><span class="grey-text">Rekapitulasi</span></a>      
       <a class="item" data-tab="fourth"><span class="grey-text">Tambah Kelas &amp; Siswa</span></a>
-      <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a>
-    <a class="item" data-tab="sixth"><span class="grey-text">Daftar Abstein</span></a>
+      <!-- <a class="item" data-tab="fifth"><span class="grey-text">Upload excel tambah Siswa &amp; RFID</span></a> -->
+    <a class="item" data-tab="sixth"><span class="grey-text">Daftar Mesin</span></a>
     </div>
     <div class="ui bottom attached tab segment" data-tab="first">
       <div class="grey-text" style="font-size:xx-large;font-weight:300;margin-top:0.3em;">      
@@ -32,7 +32,7 @@
                   <option :value="kelas._id" v-for="kelas in daftarKelas">{{kelas.nama_kelas}}</option>
                 </select> 
                 </div>                
-                  <div class="column">{{done_datang}}</div>
+                  <div class="column" v-on:click.prevent="editingDatang()">{{done_datang}}</div>
                           
               </div>
               <div class="row">
@@ -42,7 +42,7 @@
                   <option :value="siswa._id" v-for="siswa in daftarSiswa">{{siswa.profil.nama_lengkap}}</option>
                 </select>     
                 </div>
-                <div class="column">{{done_pulang}}</div>  
+                <div class="column" v-on:click.prevent="editingPulang()">{{done_pulang}}</div>  
               </div>              
             </div>            
           </div>                    
@@ -60,7 +60,7 @@
           <option :value="kelas._id" v-for="kelas in daftarKelasRekapitulasi">{{kelas.nama_kelas}}</option>
         </select>                   
       </div>
-      <a href="#"id="button-export-table"  v-on:click.prevent="export_tabel" style="margin-top:1em;"> <i class="download icon"></i> Unduh Data Absensi</a>       
+      <a href="#"id="button-export-table"  v-on:click.prevent="export_tabel(exportState)" style="margin-top:1em;"> <i class="download icon"></i> Unduh Data Absensi</a>       
      <table class="ui celled table grey-text" id="tabel-unduh-data-absensi-1">
         <!-- <caption>Absensi {{this_date}} {{this_month}} {{this_year}} </caption> -->
         <thead>
@@ -105,7 +105,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_datang != '0'" bgcolor="green" style="text-align:center">                
-                <a class="ui green large label">{{harian.waktu_datang}} {{lokalisasi}}</a>
+                <a class="ui green large label">{{harian.waktu_datang}}</a>
               </span>
               <br/>
               <br/>
@@ -114,7 +114,7 @@
                     <a class="ui red large label">Alpa</a>
               </span>  
               <span v-if="harian.waktu_pulang != '0'" bgcolor="green" style="text-align:center">
-                <a class="ui green large label">{{harian.waktu_pulang}} {{lokalisasi}}</a>                
+                <a class="ui green large label">{{harian.waktu_pulang}}</a>                
               </span>
             </td>
               <!-- <div class="ui list">
@@ -192,7 +192,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_datang != 0" bgcolor="green" style="text-align:center">                
-              <a class="ui green large label">{{sharian.waktu_datang}} {{lokalisasi}}</a>
+              <a class="ui green large label">{{sharian.waktu_datang}}</a>
             </span>
             <br/>
             <br/>
@@ -201,7 +201,7 @@
                   <a class="ui red large label">Alpa</a>
             </span>  
             <span v-if="sharian.waktu_pulang != 0" bgcolor="green" style="text-align:center">
-              <a class="ui green large label">{{sharian.waktu_pulang}} {{lokalisasi}}</a>                
+              <a class="ui green large label">{{sharian.waktu_pulang}}</a>                
             </span>
           </td>
            <td v-if="sharian.waktu_datang == 0 && sharian.waktu_pulang == 0 " bgcolor="red" style="text-align:center"> 
@@ -487,14 +487,20 @@
   import table_export from 'tableexport'
   //import 'jquery-ui/build/release.js'
   import datepicker from 'vuejs-datepicker'
+import swal from 'sweetalert2';
   
   export default {
     name: "konten",
     data(){
       return{
-        lokalisasi:"",
+        editDatang:'',
+        idKelas:null,
+        editPulang:'',
         chartLabel: [],
+        exportState:'0',
         jamDatang:null,
+        jamEditDatang:null,
+        jamEditPulang:null,
         jamPulang:null,
         done_datang : null,
         done_pulang:null,
@@ -547,9 +553,7 @@
         create_siswa_sandi: null,
         create_siswa_kode_rfid: null,
         create_siswa_kelas: null,
-
-        create_nama_kelas : null
-
+		create_nama_kelas: null
         //datepickerrekapitulasi: new Date().toISOString()
       }
     },
@@ -558,7 +562,6 @@
       //this.get_absen("5b834f3c6e33f31321bfaabd","5b83585226ebef39747eac4b");
       //this.get_all_siswa();
       this.get_all_kelas();
-
       this.get_mac_addressData()
       this.getLokalisasi();
       moment.locale('id')      
@@ -624,22 +627,15 @@
     },
   })
         this.$http.post(global_json.general_url+'/kelas/tambah',{
-
           tingkat:this.create_class_tingkat,
           jurusan:this.create_class_jurusan,
           tahun_ajaran:this.create_class_tahun_ajaran,
           sekolah:this.$session.get('id_sekolah'),
-
-
       nama_kelas: this.create_nama_kelas,
       jam_masuk:this.jamDatang,
       jam_pulang:this.jamPulang
-
         }).then(function (data,err) {
-          console.log(JSON.stringify(data));
-          console.log(this.$session.get('id_sekolah'));
           if(data.body.success == true){ 
-
             Swal({
 				title: "Berhasil",
 				text: "Data kelas berhasil ditambahkan",
@@ -653,7 +649,6 @@
 				type: "error",
 				allowOutsideClick: false
 			})
-
           }        
         })
       },
@@ -685,7 +680,6 @@
           }        
         })
       },
-
       get_lokalisasi(){
            this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
@@ -694,94 +688,30 @@
              this.lokalisasi = data.body.data.data_result.kode;
            })
       },
-
       downloadRekapitulasi: function(){
         let dateSplitter = this.datepickerrekapitulasi.toISOString().split("T")        
         let dateAdjusted = dateSplitter[0]+"T00:00:00.000+0000"
         this.daterekapitulasi = dateSplitter[0]
         let vue = this
 
-        
-        this.$http.post(global_json.general_url+'/absen/sekolah/harian2',{
+        this.$http.post(global_json.general_url+'/absen/sekolah/harian',{
           sekolah_id:this.$session.get('id_sekolah'),
           //date_time:moment().get('year')+"-"+(moment().get('month')+1)+"-"+moment().get('date')+"T00:00:00.000+0000"
           date_time:dateAdjusted
         }).then(function (data) {
           if(data.body.success == true){   
-              //ambil lokalisasi dlu
-              this.get_lokalisasi();
-
-
               vue.sekolah_harian_rekapitulasi = []           
               var results = data.body.data; 
               //console.log("BISMILLAH: "+JSON.stringify(results))
               for(let counter=0;counter<results.length;counter++){
-                if(results[counter].waktu_datang != 0){
-                    var otomatis = 0;
-                    if(this.lokalisasi == "WIB"){
-                      otomatis = 0
-                      
-                    }else if(this.lokalisasi == "WITA"){
-                       otomatis =1 
-                    }else if(this.lokalisasi == "WIT"){
-                      otomatis=2
-                    }
-
-                  var tgl = results[counter].waktu_datang
-                  var sliceTgl = tgl.substr(0,11)
-                  var zone = results[counter].waktu_datang
-                  var sliceZone = zone.substr(13,11)
-
-                  var hours =results[counter].waktu_datang
-                  var sliceHours = hours.substr(11,2)
-
-                  var data = parseInt(sliceHours)+otomatis
-                  var dpad = data.toString()
-                  var pad = dpad.padStart(2,'0')
-                  
-                  var done = sliceTgl+""+""+pad+""+sliceZone
-                 // console.log("Done : "+done)
-                  //console.log("harian 2 : "+results[counter].waktu_datang)
-                  results[counter].waktu_datang = moment(done).format('HH.mm.ss')                  
+                if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
+                  results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
                 }
-                if(results[counter].waktu_pulang != 0){     
-                     var otomatis = 0;
-                    if(this.lokalisasi == "WIB"){
-                      otomatis = 0
-                    }else if(this.lokalisasi == "WITA"){
-                       otomatis =1 
-                    }else if(this.lokalisasi == "WIT"){
-                      otomatis=2
-                    }
-
-                  var tgl = results[counter].waktu_pulang
-                  var sliceTgl = tgl.substr(0,11)
-                  var zone = results[counter].waktu_pulang
-                  var sliceZone = zone.substr(13,11)
-
-                  var hours =results[counter].waktu_pulang
-                  var sliceHours = hours.substr(11,2)
-
-                  var data = parseInt(sliceHours)+otomatis
-                  var dpad = data.toString()
-                  var pad = dpad.padStart(2,'0')
-                  
-                  var done = sliceTgl+""+""+pad+""+sliceZone
-                  console.log("Done : "+done)
-             
-                  results[counter].waktu_pulang = moment(done).format('HH.mm.ss')
+                if(results[counter].waktu_pulang != 0){                  
+                  results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
                 }
                 
                 vue.sekolah_harian_rekapitulasi.push(results[counter])
-                
-                // if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
-                //   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
-                // }
-                // if(results[counter].waktu_pulang != 0){                  
-                //   results[counter].waktu_pulang = moment(results[counter].waktu_pulang).format('HH.mm.ss')
-                // }
-                
-                // vue.sekolah_harian_rekapitulasi.push(results[counter])
               }
               //$("#tabel-unduh-data-absensi").css("display","block") 
               //$("#tombol-unduh-data-absensi").css("display","block") TOMBOL UNDUH TABEL REKAPITULASI
@@ -814,8 +744,9 @@
       close_update_form_absent: function(){
         this.$modal.hide('form-update-absensi');
       },
-      export_tabel: function(){
-        this.this_class = $("#select-kelas option:selected").text();
+      export_tabel: function(State){
+        if(State=='0'){
+this.this_class = $("#select-kelas option:selected").text();
         let vue = this
         table_export(document.getElementById("tabel-unduh-data-absensi-1"),{          
           formats: ['xlsx', 'csv'],            // (String[]), filetype(s) for the export, (default: ['xlsx', 'csv', 'txt'])
@@ -826,6 +757,12 @@
           ignoreCols: null,                           // (Number, Number[]), column indices to exclude from the exported file(s) (default: null)
           trimWhitespace: true                        // (Boolean), remove all leading/trailing newlines, spaces, and tabs from cell text in the exported file(s) (default: false)
         })
+
+        this.exportState='1'
+        }else{
+          console.log("Data Export " +this.exportState)
+        }
+        
       },
        export_tabel_rekapitulasi: function(){
         //this.this_class = $("#select-kelas option:selected").text();
@@ -876,8 +813,7 @@
            this.$http.post(global_json.general_url+'/absen/sekolah/absen/lokalisasisekolah',{
                _id:this.$session.get('id_sekolah')
            }).then(function (data,err) {
-              console.log("hahah" + this.lokalisasi);
-               this.lokalisasi=data.body.data.data_result.kode;
+             console.log("Tanda : "+JSON.stringify(data))
            })
       },
       regisMacAdders(){
@@ -940,7 +876,10 @@
           console.log("Year : "+dataJamMasuk)
       },
       get_absen(user,selectClass){
-    
+        console.log("ID SEKOLAH : "+this.$session.get("id_sekolah"))
+        console.log("Start Time : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")        
+        console.log("End Time : "+moment().get('year')+"-"+parseInt(moment().get('month')+2)+"-01T00:00:00.000+0000")        
+        console.log("ID SEKOLAH : "+this.$session.get("id_sekolah"))  
         let vue = this
           vue.chartLabel.length=0;
                 vue.waktuDatang.length=0; 
@@ -950,35 +889,27 @@
         console.log("chartLabel : "+JSON.stringify(vue.chartLabel))
       console.log("Data Id Absen : "+user)
       console.log("Data ID Sekolah : "+vue.$session.get('id_sekolah'))
-      //console.log("select kelas" + selectClass);
-      
-      Swal({
+        Swal({
         allowOutsideClick: false,
         text: 'Mohon tunggu permintaan Anda sedang diproses...',        
         onOpen: function () {
           Swal.showLoading()
+          console.log("Start time month: "+parseInt(moment().get('month')+1))
+          console.log("End time month: "+parseInt(moment().get('month')+2))
 
-          var startMonth = parseInt(moment().get('month')+1);
-          var endMonth = parseInt(moment().get('month')+2);
+          var StartBulan = parseInt(moment().get('month')+1);
+          var EndBulan = parseInt(moment().get('month')+2);
+          var endTahun =  moment().get('year');
 
-          var startYear = moment().get('year');
-          var endYear = moment().get('year')
-
-          if(endMonth == 13){
-            endMonth = "01";
-            endYear = moment().get('year') + 1;
+          if(EndBulan == 13){
+            EndBulan = "01";
+            endTahun = moment().get('year') + 1;
           }
-
           
-          console.log("Start time month: "+startMonth)
-          console.log("End time month: "+endMonth)
-          console.log("Yeah: "+endYear)
-
-
           vue.$http.post(global_json.general_url+'/absen/query',{
             sekolah_id:vue.$session.get('id_sekolah'),
-            start_time:startYear+"-"+startMonth+"-01T00:00:00.000+0000",
-            end_time: endYear+"-"+endMonth+"-01T00:00:00.000+0000",
+            start_time:moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000",
+            end_time:endTahun+"-"+EndBulan+"-01T00:00:00.000+0000",
             /* start_time:"2018-07-01T00:00:00.000+0000",
             end_time:"2018-08-01T00:00:00.000+0000", */
             user_id:user,
@@ -987,22 +918,15 @@
             if(data.body.success == true){
                
               var results = data.body.data.resultArray;
-             
               console.log("SSADS: "+results.length)
-              console.log("Starttime : "+startYear+"-"+startMonth+"-01T00:00:00.000+0000")
-              console.log("endtime : "+endYear+"-"+endMonth+"-01T00:00:00.000+0000")
+              console.log("Starttime : "+moment().get('year')+"-"+parseInt(moment().get('month')+1)+"-01T00:00:00.000+0000")
+              console.log("endtime : "+endTahun+"-"+EndBulan+"-01T00:00:00.000+0000")
               if(results.length>0){
                 //alert("data")
-                vue.chartLabel=[];
-                vue.waktuDatang=[]; 
-                vue.waktuPulang=[];
-                vue.tepatDatang=[];
-                vue.tepatPulang=[];
-
-                 for(let counter=0;counter<results.length;counter++){
+             
+                for(let counter=0;counter<results.length;counter++){
                   console.log("XXI:"+moment(results[counter].tanggal_string).format('DD'))
                   vue.chartLabel.push(moment(results[counter].tanggal_string).format('DD'))
-                  //console.log("DATAAAAAA "+ vue.get_only_time(results[counter].max_kepulangan_string));
                  
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].pulang_string).getTime()/1000){
                       vue.waktuPulang.push(vue.get_only_time(results[counter].pulang_string).getTime()/1000)
@@ -1015,7 +939,7 @@
                   }
 
                   if(vue.get_only_time(results[counter].max_kepulangan_string).getTime()/1000 <= vue.get_only_time(results[counter].datang_string).getTime()/1000){
-                 vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
+                vue.waktuDatang.push(vue.get_only_time(results[counter].max_kedatangan_string).getTime()/1000);
                   
                   }else{
                    vue.waktuDatang.push(vue.get_only_time(results[counter].datang_string).getTime()/1000)
@@ -1037,8 +961,7 @@
                 Swal({title:'Error',
                 text:'Data tidak tersedia Atau Mesin Absetein belum terdaftar',
                 type:'error',
-                allowOutsideClick: false});            
-                
+                allowOutsideClick: false});                
               }
 
             
@@ -1080,7 +1003,6 @@
             if(data.body.data.length >0){
                  vue.sekolah_harian = []             
               var results = data.body.data; 
-              this.get_lokalisasi();
               for(let counter=0;counter<results.length;counter++){
                 if(results[counter].waktu_datang != 0 || results[counter].waktu_pulang != 0){
                   results[counter].waktu_datang = moment(results[counter].waktu_datang).format('HH.mm.ss')                  
@@ -1150,25 +1072,27 @@
           kelas_id: classe
           }).then(function (data) {
             console.log("ID KELAS : "+classe)
+            this.idKelas = classe
+            console.log("ID KELASNya : "+this.idKelas)
             if(data.body.success == true){
               vue.$http.post(global_json.general_url+'/absen/sekolah/getjamMP',{
                 sekolah: this.$session.get('id_sekolah'),
                 kelas:classe
               }).then(function(data){
                 var maxDatang = data.body.data.jam_masuk.toString()
-
-                var maxDatanggg = data.body.data.jam_masuk
-                
+               
                 var dateDatang = new Date(maxDatang)
-                var doneDatang = "Batas Waktu Datang JAM "+moment.utc(dateDatang).format('hh:mm a')
-                console.log(maxDatanggg);
+                var doneDatang = "Batas Waktu Datang JAM "+moment.utc(dateDatang).format('HH:mm a')
+                this.editDatang = moment.utc(dateDatang).format('HH:mm');
+
                 this.done_datang = doneDatang
 
                 var maxPulang = data.body.data.jam_pulang.toString()
+  
                 var datePulang = new Date(maxPulang)
-
-                var donePulang = "Jam Kepulangan JAM "+moment.utc(datePulang).format('hh:mm a')
-
+                var donePulang = "Jam Kepulangan JAM "+moment.utc(datePulang).format('HH:mm a')
+                
+                this.editPulang= moment.utc(datePulang).format('HH:mm');
                 this.done_pulang = donePulang
               })
                 //alert(JSON.stringify(data.body))
@@ -1255,6 +1179,94 @@
         var date = new Date(dateString);
         return new Date(0,0,0,date.getHours(), date.getMinutes());
       },
+      myData(){
+        alert("My Data")
+      },
+      editingDatang(){
+        var kelasId = this.idKelas
+        var pulang = this.editPulang
+        swal({
+        title: 'Ubah Jam Datang',
+        html: '<input type="time" id="datang" value="'+this.editDatang+'">',
+        showConfirmButton: true,
+        showCancelButton:true,
+          showCloseButton: true,
+           allowOutsideClick : false,
+        }).then((results)=> {
+          
+        if(results.value){
+              var masuk = document.getElementById('datang').value;
+
+            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelasMasuk',{
+              idKelas:kelasId,
+              editJamMasuk:masuk,
+
+            }).then(function(data){
+              if(data.body.success == true){
+                  Swal({
+				title: "Berhasil",
+				text: "Data Jam Datang berhasil diubah",
+				type: "success",
+				allowOutsideClick: true})
+              }else{
+                Swal({
+				title: "Maaf",
+				text: "Terjadi Kesalahan",
+				type: "error",
+				allowOutsideClick: false
+			})
+              }
+            })
+        }else{
+      
+        }
+      
+   
+        });
+      },
+      editingPulang(){  
+        var kelasId = this.idKelas
+        var datang = this.editDatang
+        
+        swal({
+        title: 'Ubah Jam Pulang',
+        html: '<input type="time" id="pulang" value="'+this.editPulang+'">',
+        showConfirmButton: true,
+        showCancelButton:true,
+          showCloseButton: true,
+           allowOutsideClick : false,
+        }).then((results)=> {
+          
+        if(results.value){
+              var pulang = document.getElementById('pulang').value;
+
+            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelasPulang',{
+              idKelas:kelasId,
+        
+              editJamPulang:pulang
+            }).then(function(data){
+              if(data.body.success == true){
+                  Swal({
+				title: "Berhasil",
+				text: "Data Jam Pulang berhasil diubah",
+				type: "success",
+				allowOutsideClick: true})
+              }else{
+                 Swal({
+				title: "Maaf",
+				text: "Terjadi Kesalahan",
+				type: "error",
+				allowOutsideClick: false
+			})
+              }
+            })
+        }else{
+      
+        }
+      
+   
+        });
+            },
       generated_data(){
         this.chartLabel=[];
         this.waktuDatang=[];

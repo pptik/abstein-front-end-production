@@ -28,8 +28,8 @@
           <konten-utama></konten-utama>
         </div>        
         <div class="four wide column">
-          <div class="ui card">
-            <div class="image"><img v-bind:src="$session.get('foto_profil')"/></div>
+          <div class="ui card" style="margin-top:50px;">
+            <div  class="image"><img v-bind:src="$session.get('foto_profil')"/></div>
             <div class="content"><a class="header">{{$session.get('username')}}</a>
               <div class="meta"><span class="date">{{$session.get('nama_lengkap')}}</span></div>              
             </div>            
