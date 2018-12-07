@@ -1175,10 +1175,10 @@ this.this_class = $("#select-kelas option:selected").text();
         if(results.value){
               var masuk = document.getElementById('datang').value;
 
-            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelas',{
+            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelasMasuk',{
               idKelas:kelasId,
               editJamMasuk:masuk,
-              editJamPulang:pulang
+
             }).then(function(data){
               if(data.body.success == true){
                   Swal({
@@ -1217,10 +1217,10 @@ this.this_class = $("#select-kelas option:selected").text();
           
         if(results.value){
               var pulang = document.getElementById('pulang').value;
-alert("datang : "+datang+" pulang : "+pulang)
-            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelas',{
+
+            this.$http.post(global_json.general_url+'/absen/sekolah/editJamKelasPulang',{
               idKelas:kelasId,
-              editJamMasuk:datang,
+        
               editJamPulang:pulang
             }).then(function(data){
               if(data.body.success == true){
